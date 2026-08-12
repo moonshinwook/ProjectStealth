@@ -29,8 +29,13 @@ AMyCharacter::AMyCharacter()
 	Camera->SetupAttachment(SpringArm);
 
 	SpringArm->TargetArmLength = 400.0f;
-
 	SpringArm->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 100.0f), FRotator(-25.0f, 0.0f, 0.0f));
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> ANI(TEXT("/Script/Engine.AnimBlueprint'/Game/BluePrints/ABP_MyCharacter.ABP_MyCharacter_C'"));
+	if (ANI.Succeeded())
+	{
+		GetMesh()->SetAnimClass(ANI.Class);
+	}
 }
 
 // Called when the game starts or when spawned

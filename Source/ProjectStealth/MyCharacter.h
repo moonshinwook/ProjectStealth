@@ -18,6 +18,9 @@ public:
 	class USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* Camera;
+private:
+	UPROPERTY(VisibleAnywhere)
+	class UMyAnimInstance* AnimInstance;
 public:
 	// Sets default values for this character's properties
 	AMyCharacter();
@@ -27,10 +30,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
