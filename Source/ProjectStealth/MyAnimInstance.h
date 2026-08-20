@@ -14,6 +14,20 @@ class PROJECTSTEALTH_API UMyAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 private:
-	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	bool shouldMove;
+	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	bool ShouldMove;
+	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	float Horizontal;
+	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	float Vertical;
+
+
+	UPROPERTY(VisibleAnywhere)
+	class ACharacter* Character;
+	UPROPERTY(VisibleAnywhere)
+	class UCharacterMovementComponent* CharacterMovement;
+
+public:
+	virtual void NativeBeginPlay() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 };
