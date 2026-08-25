@@ -6,6 +6,19 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 
+
+UMyAnimInstance::UMyAnimInstance()
+{
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AM(TEXT("/Game/Animaitions/RM_Roll_front_Montage.RM_Roll_front_Montage"));
+	
+	if (AM.Succeeded())
+	{
+		RollMontage = AM.Object;
+	}
+
+
+}
+
 void UMyAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
@@ -42,5 +55,16 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		auto Acceleration = CharacterMovement->GetCurrentAcceleration();
 
 		ShouldMove = GroundSpeed > 0.1 && Acceleration != FVector::Zero();
+	}
+}
+
+void UMyAnimInstance::PlayRollMontage()
+{
+	if (IsValid(RollMontage))
+	{
+		if (!Montage_IsPlaying(RollMontage))
+		{
+			Montage_Play(RollMontage, 1.0f);
+		}
 	}
 }

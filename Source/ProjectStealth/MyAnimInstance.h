@@ -13,6 +13,7 @@ UCLASS()
 class PROJECTSTEALTH_API UMyAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
+
 private:
 	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool ShouldMove;
@@ -20,14 +21,22 @@ private:
 	float Horizontal;
 	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float Vertical;
+	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	bool IsRolling;
 
 
 	UPROPERTY(VisibleAnywhere)
 	class ACharacter* Character;
 	UPROPERTY(VisibleAnywhere)
 	class UCharacterMovementComponent* CharacterMovement;
+	UPROPERTY(VisibleAnywhere)
+	UAnimMontage* RollMontage;
 
 public:
 	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+public:
+	UMyAnimInstance(); // 생성자 추가
+public:
+	void PlayRollMontage();
 };
