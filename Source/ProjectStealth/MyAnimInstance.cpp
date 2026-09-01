@@ -9,7 +9,7 @@
 
 UMyAnimInstance::UMyAnimInstance()
 {
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> AM(TEXT("/Game/Animaitions/RM_Roll_front_Montage.RM_Roll_front_Montage"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AM(TEXT("/Script/Engine.AnimMontage'/Game/Animaitions/RM_Roll_front1_Montage.RM_Roll_front1_Montage'"));
 	
 	if (AM.Succeeded())
 	{

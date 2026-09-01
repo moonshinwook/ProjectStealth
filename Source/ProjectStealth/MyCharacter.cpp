@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "MyAnimInstance.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -36,6 +37,8 @@ AMyCharacter::AMyCharacter()
 	{
 		GetMesh()->SetAnimClass(ANI.Class);
 	}
+
+	GetCapsuleComponent()->SetHiddenInGame(false);
 }
 
 // Called when the game starts or when spawned
