@@ -21,8 +21,6 @@ private:
 	float Horizontal;
 	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float Vertical;
-	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	bool IsRolling;
 
 
 	UPROPERTY(VisibleAnywhere)
@@ -31,6 +29,8 @@ private:
 	class UCharacterMovementComponent* CharacterMovement;
 	UPROPERTY(VisibleAnywhere)
 	UAnimMontage* RollMontage;
+	UPROPERTY(VisibleAnywhere)
+	UAnimMontage* AttackMontage;
 
 public:
 	virtual void NativeBeginPlay() override;
@@ -39,4 +39,5 @@ public:
 	UMyAnimInstance(); // 생성자 추가
 public:
 	void PlayRollMontage();
+	void PlayAttackMontage();
 };

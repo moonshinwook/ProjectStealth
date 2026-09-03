@@ -38,4 +38,5 @@ public:
 	void KeyLeftRight(float value);
 public:
 	void KeyRoll();
+	void KeyAttack();
 };

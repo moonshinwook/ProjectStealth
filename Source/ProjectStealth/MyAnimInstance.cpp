@@ -11,11 +11,20 @@ UMyAnimInstance::UMyAnimInstance()
 {
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> AM(TEXT("/Script/Engine.AnimMontage'/Game/Animaitions/RM_Roll_front1_Montage.RM_Roll_front1_Montage'"));
 	
+	
 	if (AM.Succeeded())
 	{
 		RollMontage = AM.Object;
 	}
 
+	
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> AAM(TEXT("/Script/Engine.AnimMontage'/Game/Animaitions/uppercut_right_Anim_Montage.uppercut_right_Anim_Montage'"));
+
+
+		if (AAM.Succeeded())
+		{
+			AttackMontage = AAM.Object;
+		}
 
 }
 
@@ -65,6 +74,17 @@ void UMyAnimInstance::PlayRollMontage()
 		if (!Montage_IsPlaying(RollMontage))
 		{
 			Montage_Play(RollMontage, 1.0f);
+		}
+	}
+}
+
+void UMyAnimInstance::PlayAttackMontage()
+{
+	if(IsValid(AttackMontage))
+	{
+		if (!Montage_IsPlaying(AttackMontage))
+		{
+			Montage_Play(AttackMontage, 1.0f);
 		}
 	}
 }
