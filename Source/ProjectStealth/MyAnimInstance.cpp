@@ -4,6 +4,7 @@
 #include "MyAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MyCharacter.h"
 
 
 
@@ -36,7 +37,7 @@ void UMyAnimInstance::NativeBeginPlay()
 	 
 	if (IsValid(Pawn))
 	{
-		Character = Cast<ACharacter>(Pawn);
+		Character = Cast<AMyCharacter>(Pawn);
 
 		if (IsValid(Character))
 		{
@@ -85,6 +86,8 @@ void UMyAnimInstance::PlayAttackMontage()
 		if (!Montage_IsPlaying(AttackMontage))
 		{
 			Montage_Play(AttackMontage, 1.0f);
+
+			Character->PlayerAttack();
 		}
 	}
 }

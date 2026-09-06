@@ -24,7 +24,7 @@ private:
 
 
 	UPROPERTY(VisibleAnywhere)
-	class ACharacter* Character;
+	class AMyCharacter* Character;
 	UPROPERTY(VisibleAnywhere)
 	class UCharacterMovementComponent* CharacterMovement;
 	UPROPERTY(VisibleAnywhere)

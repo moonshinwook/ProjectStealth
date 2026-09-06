@@ -42,4 +42,5 @@ public:
 public:
 	void KeyRoll();
 	void KeyAttack();
+	void PlayerAttack();
 };

@@ -111,3 +111,57 @@ void AMyCharacter::KeyAttack()
 	}
 }
 
+void AMyCharacter::PlayerAttack()
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+
+	float AttackRange = 200.0f;
+	float AttackRadius = 50.0f;
+	float AttackHalfHeight = 90.0f;
+	FVector StartPos = GetActorLocation();
+	FVector EndPos = GetActorLocation() + GetActorForwardVector() * AttackRange;
+	
+	bool Result = GetWorld()->SweepSingleByChannel
+	(
+		HitResult, 
+		StartPos, 
+		EndPos, 
+		FQuat::Identity, 
+		ECC_GameTraceChannel1, // 채널 바꿈
+		FCollisionShape::MakeCapsule(AttackRadius, AttackHalfHeight), 
+		Params
+	);
+
+	// 공격방향
+	FQuat AttackRotation = FRotationMatrix::MakeFromZ(EndPos).ToQuat();
+
+	FColor DebugColor = Result ? FColor::Green : FColor::Red;
+
+	FVector FwdVector = GetActorForwardVector() * AttackRange;
+
+	FVector Center = StartPos + FwdVector * 0.5f;
+
+	DrawDebugCapsule
+	(
+		GetWorld(), 
+		StartPos, 
+		AttackHalfHeight, 
+		AttackRadius, 
+		AttackRotation, 
+		DebugColor, 
+		false, 
+		2.0f
+	);
+
+	if (Result)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Hit : %s"), *HitResult.GetActor()->GetName());
+	}
+
+
+
+}
+
+
+
