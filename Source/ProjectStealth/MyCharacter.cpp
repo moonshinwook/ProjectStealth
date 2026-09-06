@@ -33,9 +33,9 @@ AMyCharacter::AMyCharacter()
 
 	SpringArm->TargetArmLength = 400.0f;
 	SpringArm->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 100.0f), FRotator(-25.0f, 0.0f, 0.0f));
+	SpringArm->bUsePawnControlRotation = true;
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> ANI(TEXT("/Script/Engine.AnimBlueprint'/Game/BluePrints/ABP_MyCharacter.ABP_MyCharacter_C'"));
-	//static ConstructorHelpers::FClassFinder<UAnimInstance> ANI(TEXT("/Script/Engine.AnimBlueprint'/Game/BluePrints/ABP_MyCharacter.ABP_MyCharacter_C'"));
 	if (ANI.Succeeded())
 	{
 		GetMesh()->SetAnimClass(ANI.Class);
@@ -66,6 +66,10 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForwardBackward"), this, &AMyCharacter::KeyUpDown);
 	PlayerInputComponent->BindAxis(TEXT("MoveLeftRight"), this, &AMyCharacter::KeyLeftRight);
+	
+	PlayerInputComponent->BindAxis(TEXT("LookUpDown"), this, &AMyCharacter::KeyLookUpDown);
+	PlayerInputComponent->BindAxis(TEXT("LookLeftRight"), this, &AMyCharacter::KeyLookLeftRight);
+
 	PlayerInputComponent->BindAction(TEXT("Roll"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyRoll);
 	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAttack);
 
@@ -79,6 +83,16 @@ void AMyCharacter::KeyUpDown(float value)
 void AMyCharacter::KeyLeftRight(float value)
 {
 	AddMovementInput(GetActorRightVector(), value, false);
+}
+
+void AMyCharacter::KeyLookUpDown(float value)
+{
+	AddControllerPitchInput(value);
+}
+
+void AMyCharacter::KeyLookLeftRight(float value)
+{
+	AddControllerYawInput(value);
 }
 
 void AMyCharacter::KeyRoll()

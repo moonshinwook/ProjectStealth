@@ -37,6 +37,9 @@ public:
 	void KeyUpDown(float value);
 	void KeyLeftRight(float value);
 public:
+	void KeyLookUpDown(float value);
+	void KeyLookLeftRight(float value);
+public:
 	void KeyRoll();
 	void KeyAttack();
 };
