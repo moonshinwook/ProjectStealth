@@ -21,6 +21,8 @@ private:
 	float Horizontal;
 	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float Vertical;
+	UPROPERTY(Category = "Character Move", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	bool bIsCrouched;
 
 
 	UPROPERTY(VisibleAnywhere)
@@ -31,6 +33,7 @@ private:
 	UAnimMontage* RollMontage;
 	UPROPERTY(VisibleAnywhere)
 	UAnimMontage* AttackMontage;
+	
 
 public:
 	virtual void NativeBeginPlay() override;

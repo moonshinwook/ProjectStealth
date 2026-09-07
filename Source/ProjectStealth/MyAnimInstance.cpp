@@ -65,6 +65,8 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		auto Acceleration = CharacterMovement->GetCurrentAcceleration();
 
 		ShouldMove = GroundSpeed > 0.1 && Acceleration != FVector::Zero();
+
+		bIsCrouched = CharacterMovement->IsCrouching();
 	}
 }
 

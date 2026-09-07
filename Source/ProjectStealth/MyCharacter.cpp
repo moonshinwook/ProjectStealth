@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "MyAnimInstance.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -13,9 +14,9 @@ AMyCharacter::AMyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<
-		
-		USkeletalMesh> SM(TEXT("/Game/Man/Mesh/Full/SK_Man_Full_04.SK_Man_Full_04"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SM(TEXT("/Game/Man/Mesh/Full/SK_Man_Full_04.SK_Man_Full_04"));
+
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	if (SM.Succeeded())
 	{
@@ -72,6 +73,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction(TEXT("Roll"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyRoll);
 	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAttack);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyCrouch);
 
 }
 
@@ -161,6 +163,18 @@ void AMyCharacter::PlayerAttack()
 
 
 
+}
+
+void AMyCharacter::KeyCrouch()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();	// 이미 숙인 상태에서 C버튼 누르면 일어서기
+	}
+	else 
+	{
+		Crouch();	// 숙인 상태 아니면 숙이기 
+	}
 }
 
 

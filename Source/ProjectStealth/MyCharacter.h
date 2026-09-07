@@ -43,4 +43,5 @@ public:
 	void KeyRoll();
 	void KeyAttack();
 	void PlayerAttack();
+	void KeyCrouch();
 };
