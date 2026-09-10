@@ -19,7 +19,7 @@ UMyAnimInstance::UMyAnimInstance()
 	}
 
 	
-		static ConstructorHelpers::FObjectFinder<UAnimMontage> AAM(TEXT("/Script/Engine.AnimMontage'/Game/Animaitions/uppercut_right_Anim_Montage.uppercut_right_Anim_Montage'"));
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> AAM(TEXT("/Script/Engine.AnimMontage'/Game/Animaitions/anim_Counter_Attack_01_Montage.anim_Counter_Attack_01_Montage'"));
 
 
 		if (AAM.Succeeded())
