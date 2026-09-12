@@ -25,6 +25,8 @@ private:
 	bool bIsCrouched;
 
 
+
+
 	UPROPERTY(VisibleAnywhere)
 	class AMyCharacter* Character;
 	UPROPERTY(VisibleAnywhere)
