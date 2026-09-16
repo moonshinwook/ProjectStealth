@@ -32,9 +32,13 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCharacterMovementComponent* CharacterMovement;
 	UPROPERTY(VisibleAnywhere)
+
+	// Animation montages
 	UAnimMontage* RollMontage;
 	UPROPERTY(VisibleAnywhere)
 	UAnimMontage* AttackMontage;
+	UPROPERTY(VisibleAnywhere)
+	UAnimMontage* AssassinationAttackMontage;
 	
 
 public:
@@ -45,4 +49,5 @@ public:
 public:
 	void PlayRollMontage();
 	void PlayAttackMontage();
+	void PlayAssassinationAttackMontage();
 };

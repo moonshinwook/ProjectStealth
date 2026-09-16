@@ -44,4 +44,5 @@ public:
 	void KeyAttack();
 	void PlayerAttack();
 	void KeyCrouch();
+	void KeyAssassination();
 };

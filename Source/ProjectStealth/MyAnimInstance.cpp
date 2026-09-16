@@ -10,23 +10,29 @@
 
 UMyAnimInstance::UMyAnimInstance()
 {
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> AM(TEXT("/Script/Engine.AnimMontage'/Game/Animaitions/RM_Roll_front1_Montage.RM_Roll_front1_Montage'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> RollMontageFinder(TEXT("/Game/Animaitions/Montage/RM_Roll_front1_Montage.RM_Roll_front1_Montage"));
 	
 	
-	if (AM.Succeeded())
+	if (RollMontageFinder.Succeeded())
 	{
-		RollMontage = AM.Object;
+		RollMontage = RollMontageFinder.Object;
 	}
 
 	
-		static ConstructorHelpers::FObjectFinder<UAnimMontage> AAM(TEXT("/Script/Engine.AnimMontage'/Game/Animaitions/anim_Counter_Attack_01_Montage.anim_Counter_Attack_01_Montage'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageFinder(TEXT("/Game/Animaitions/Montage/anim_Counter_Attack_01_Montage.anim_Counter_Attack_01_Montage"));
 
 
-		if (AAM.Succeeded())
-		{
-			AttackMontage = AAM.Object;
-		}
+	if (AttackMontageFinder.Succeeded())
+	{
+		AttackMontage = AttackMontageFinder.Object;
+	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AssassinationAttackMontageFinder(TEXT("/Game/Animaitions/Montage/AM_Assassination_Animation_Montage.AM_Assassination_Animation_Montage"));
+
+	if (AssassinationAttackMontageFinder.Succeeded())
+	{
+		AssassinationAttackMontage = AssassinationAttackMontageFinder.Object;
+	}
 }
 
 void UMyAnimInstance::NativeBeginPlay()
@@ -90,6 +96,17 @@ void UMyAnimInstance::PlayAttackMontage()
 			Montage_Play(AttackMontage, 1.0f);
 
 			Character->PlayerAttack();
+		}
+	}
+}
+
+void UMyAnimInstance::PlayAssassinationAttackMontage()
+{
+	if (IsValid(AssassinationAttackMontage))
+	{
+		if (!Montage_IsPlaying(AssassinationAttackMontage))
+		{
+			Montage_Play(AssassinationAttackMontage, 1.0f);
 		}
 	}
 }

@@ -74,6 +74,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(TEXT("Roll"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyRoll);
 	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAttack);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyCrouch);
+	PlayerInputComponent->BindAction(TEXT("Assassination"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAssassination);
 
 }
 
@@ -174,6 +175,14 @@ void AMyCharacter::KeyCrouch()
 	else 
 	{
 		Crouch();	// 숙인 상태 아니면 숙이기 
+	}
+}
+
+void AMyCharacter::KeyAssassination()
+{
+	if (IsValid(AnimInstance))
+	{
+		AnimInstance->PlayAssassinationAttackMontage();
 	}
 }
 
