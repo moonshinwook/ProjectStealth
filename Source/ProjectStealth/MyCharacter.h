@@ -7,13 +7,12 @@
 #include "Camera/CameraComponent.h"
 #include "MyCharacter.generated.h"
 
-class UAnimMontage;
+class UMyAnimInstance;
 
 UCLASS()
 class PROJECTSTEALTH_API AMyCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
 private:
 	UPROPERTY(VisibleAnywhere)
 	class UMyAnimInstance* AnimInstance;
@@ -34,6 +33,12 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player|Assassination", Meta = (ClampMin = 0.0f))
 	float AssassinationRange = 150.0f;
+public:
+	void SetIsAssassinating(bool bNewIsAssassinating);
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Player|Assassination")
+	bool bIsAssassinating = false;
 
 public:	
 	virtual void Tick(float DeltaTime) override;

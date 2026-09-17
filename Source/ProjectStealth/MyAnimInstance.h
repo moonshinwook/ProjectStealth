@@ -25,8 +25,6 @@ private:
 	bool bIsCrouched;
 
 
-
-
 	UPROPERTY(VisibleAnywhere)
 	class AMyCharacter* Character;
 	UPROPERTY(VisibleAnywhere)
@@ -39,7 +37,9 @@ private:
 	UAnimMontage* AttackMontage;
 	UPROPERTY(VisibleAnywhere)
 	UAnimMontage* AssassinationAttackMontage;
-	
+private:
+	//	암살 몽타주 끝날 때 호출되는 함수
+	void OnAssassinationMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 public:
 	virtual void NativeBeginPlay() override;

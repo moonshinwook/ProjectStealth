@@ -35,6 +35,7 @@ UMyAnimInstance::UMyAnimInstance()
 	}
 }
 
+
 void UMyAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
@@ -102,11 +103,60 @@ void UMyAnimInstance::PlayAttackMontage()
 
 void UMyAnimInstance::PlayAssassinationAttackMontage()
 {
-	if (IsValid(AssassinationAttackMontage))
+	//	기존 코드 -> 롤백용
+	//if (IsValid(AssassinationAttackMontage))
+	//{
+	//	if (!Montage_IsPlaying(AssassinationAttackMontage))
+	//	{
+	//		Montage_Play(AssassinationAttackMontage, 1.0f);
+	//	}
+	//}
+	if (!IsValid(AssassinationAttackMontage) || !IsValid(Character))
 	{
-		if (!Montage_IsPlaying(AssassinationAttackMontage))
-		{
-			Montage_Play(AssassinationAttackMontage, 1.0f);
-		}
+		return;
+	}
+
+	// 블렌드 아웃 중인 경우를 포함해 중복 재생 방지
+	if (Montage_IsActive(AssassinationAttackMontage))
+	{
+		return;
+	}
+
+	const float PlayResult =
+		Montage_Play(AssassinationAttackMontage, 1.0f);
+
+	// 재생 실패 시 이동을 막지 않음
+	if (PlayResult <= 0.0f)
+	{
+		return;
+	}
+
+	// 재생 성공 → WASD 이동 제한
+	Character->SetIsAssassinating(true);
+
+	// 이 암살 몽타주가 끝나면 호출할 함수 연결
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(
+		this,
+		&UMyAnimInstance::OnAssassinationMontageEnded
+	);
+
+	Montage_SetEndDelegate(
+		EndDelegate,
+		AssassinationAttackMontage
+	);
+}
+
+void UMyAnimInstance::OnAssassinationMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (Montage != AssassinationAttackMontage)
+	{
+		return;
+	}
+
+	if (IsValid(Character))
+	{
+		// 정상 종료와 중간에 끊긴 경우 모두 이동 제한 해제
+		Character->SetIsAssassinating(false);
 	}
 }

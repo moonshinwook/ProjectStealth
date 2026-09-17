@@ -57,6 +57,8 @@ void AMyCharacter::BeginPlay()
 	AnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
 }
 
+
+
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
@@ -85,11 +87,23 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AMyCharacter::KeyUpDown(float value)
 {
+	//	암살 중에는 이동하지 않도록 처리
+	if(bIsAssassinating)
+	{
+		return;
+	}
+
 	AddMovementInput(GetActorForwardVector(), value, false);
 }
 
 void AMyCharacter::KeyLeftRight(float value)
 {
+	//	암살 중에는 이동하지 않도록 처리
+	if (bIsAssassinating)
+	{
+		return;
+	}
+
 	AddMovementInput(GetActorRightVector(), value, false);
 }
 
@@ -193,7 +207,7 @@ void AMyCharacter::KeyAssassination()
 	//	현재 레벨에서 Enemy 한명 찾기
 	AEnemy* Enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
 	
-	UE_LOG(LogTemp, Log, TEXT("Found Enemy : %s"), *GetNameSafe(Enemy))
+	UE_LOG(LogTemp, Log, TEXT("Found Enemy : %s"), *GetNameSafe(Enemy));
 
 	//	Enemy가 유효하면 Enemy의 PlayChoke() 함수 호출
 	if (IsValid(Enemy))
@@ -202,4 +216,17 @@ void AMyCharacter::KeyAssassination()
 	}
 }
 
+//	암살 중인지 확인하는 코드
+void AMyCharacter::SetIsAssassinating(bool bNewIsAssassinating)
+{
+	bIsAssassinating = bNewIsAssassinating;
 
+	if (bIsAssassinating)
+	{
+		//	암살 중이면 이번 프레임에 이미 들어온 이동 입력 제거
+		ConsumeMovementInputVector();
+
+		//	이동하던 속도 즉시 제거
+		GetCharacterMovement()->StopMovementImmediately();
+	}
+}
