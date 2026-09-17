@@ -8,6 +8,10 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "Enemy.h"
+//	블루프린트와 C++ 코드 모두에서 호출할 수 있는 유용한 게임플레이 유틸리티 함수들을 포함하는 정적 클래스입니다.
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
@@ -76,6 +80,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyCrouch);
 	PlayerInputComponent->BindAction(TEXT("Assassination"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAssassination);
 
+	//PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &AMyCharacter::TryAssassination);
 }
 
 void AMyCharacter::KeyUpDown(float value)
@@ -184,7 +189,17 @@ void AMyCharacter::KeyAssassination()
 	{
 		AnimInstance->PlayAssassinationAttackMontage();
 	}
-}
 
+	//	현재 레벨에서 Enemy 한명 찾기
+	AEnemy* Enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
+	
+	UE_LOG(LogTemp, Log, TEXT("Found Enemy : %s"), *GetNameSafe(Enemy))
+
+	//	Enemy가 유효하면 Enemy의 PlayChoke() 함수 호출
+	if (IsValid(Enemy))
+	{
+		Enemy->PlayChoke();
+	}
+}
 
 

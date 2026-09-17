@@ -7,20 +7,23 @@
 #include "Camera/CameraComponent.h"
 #include "MyCharacter.generated.h"
 
+class UAnimMontage;
 
 UCLASS()
 class PROJECTSTEALTH_API AMyCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY(VisibleAnywhere)
+	class UMyAnimInstance* AnimInstance;
+
 public:
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* Camera;
-private:
-	UPROPERTY(VisibleAnywhere)
-	class UMyAnimInstance* AnimInstance;
+
 public:
 	// Sets default values for this character's properties
 	AMyCharacter();
@@ -28,11 +31,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player|Assassination", Meta = (ClampMin = 0.0f))
+	float AssassinationRange = 150.0f;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 public:
 	void KeyUpDown(float value);
 	void KeyLeftRight(float value);
