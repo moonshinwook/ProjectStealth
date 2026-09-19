@@ -9,7 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "Enemy.h"
-//	블루프린트와 C++ 코드 모두에서 호출할 수 있는 유용한 게임플레이 유틸리티 함수들을 포함하는 정적 클래스입니다.
+//	블루프린트와 C++ 코드 모두에서 호출할 수 있는 유용한 게임플레이 유틸리티 함수들을 포함하는 정적 클래스
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -80,9 +80,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(TEXT("Roll"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyRoll);
 	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAttack);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyCrouch);
-	PlayerInputComponent->BindAction(TEXT("Assassination"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAssassination);
-
-	//PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &AMyCharacter::TryAssassination);
+	PlayerInputComponent->BindAction(TEXT("Assassination"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAssassination);	
 }
 
 void AMyCharacter::KeyUpDown(float value)
@@ -119,6 +117,12 @@ void AMyCharacter::KeyLookLeftRight(float value)
 
 void AMyCharacter::KeyRoll()
 {
+	//	암살 중에는 이동하지 않도록 처리
+	if (bIsAssassinating)
+	{
+		return;
+	}
+
 	if (IsValid(AnimInstance))
 	{
 		AnimInstance->PlayRollMontage();
@@ -127,6 +131,11 @@ void AMyCharacter::KeyRoll()
 
 void AMyCharacter::KeyAttack()
 {
+	if (bIsAssassinating)
+	{
+		return;
+	}
+
 	if (IsValid(AnimInstance))
 	{
 		AnimInstance->PlayAttackMontage();
@@ -181,12 +190,15 @@ void AMyCharacter::PlayerAttack()
 		UE_LOG(LogTemp, Log, TEXT("Hit : %s"), *HitResult.GetActor()->GetName());
 	}
 
-
-
 }
 
 void AMyCharacter::KeyCrouch()
 {
+	if (bIsAssassinating)
+	{
+		return;
+	}
+
 	if (bIsCrouched)
 	{
 		UnCrouch();	// 이미 숙인 상태에서 C버튼 누르면 일어서기
@@ -199,9 +211,12 @@ void AMyCharacter::KeyCrouch()
 
 void AMyCharacter::KeyAssassination()
 {
+
+
 	if (IsValid(AnimInstance))
 	{
 		AnimInstance->PlayAssassinationAttackMontage();
+
 	}
 
 	//	현재 레벨에서 Enemy 한명 찾기
@@ -214,11 +229,14 @@ void AMyCharacter::KeyAssassination()
 	{
 		Enemy->PlayChoke();
 	}
+
+
 }
 
 //	암살 중인지 확인하는 코드
 void AMyCharacter::SetIsAssassinating(bool bNewIsAssassinating)
 {
+
 	bIsAssassinating = bNewIsAssassinating;
 
 	if (bIsAssassinating)
@@ -228,5 +246,11 @@ void AMyCharacter::SetIsAssassinating(bool bNewIsAssassinating)
 
 		//	이동하던 속도 즉시 제거
 		GetCharacterMovement()->StopMovementImmediately();
+		
+		//	암살 중에는 캐릭터가 회전하지 않도록 설정
+		bUseControllerRotationYaw = false;
+		bUseControllerRotationPitch = false;
+		bUseControllerRotationRoll = false;
+
 	}
 }

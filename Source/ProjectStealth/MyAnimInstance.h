@@ -6,9 +6,6 @@
 #include "Animation/AnimInstance.h"
 #include "MyAnimInstance.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROJECTSTEALTH_API UMyAnimInstance : public UAnimInstance
 {

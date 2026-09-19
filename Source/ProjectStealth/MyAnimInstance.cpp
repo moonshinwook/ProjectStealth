@@ -141,10 +141,7 @@ void UMyAnimInstance::PlayAssassinationAttackMontage()
 		&UMyAnimInstance::OnAssassinationMontageEnded
 	);
 
-	Montage_SetEndDelegate(
-		EndDelegate,
-		AssassinationAttackMontage
-	);
+	Montage_SetEndDelegate(EndDelegate,AssassinationAttackMontage);
 }
 
 void UMyAnimInstance::OnAssassinationMontageEnded(UAnimMontage* Montage, bool bInterrupted)
