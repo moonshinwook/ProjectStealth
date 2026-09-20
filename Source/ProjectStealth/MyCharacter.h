@@ -7,7 +7,10 @@
 #include "Camera/CameraComponent.h"
 #include "MyCharacter.generated.h"
 
+
+
 class UMyAnimInstance;
+class AEnemy;  
 
 UCLASS()
 class PROJECTSTEALTH_API AMyCharacter : public ACharacter
@@ -30,21 +33,20 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player|Assassination", Meta = (ClampMin = 0.0f))
-	float AssassinationRange = 150.0f;
+
+//	암살관련 정의
 public:
 	void SetIsAssassinating(bool bNewIsAssassinating);
-
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Player|Assassination")
 	bool bIsAssassinating = false;
+
 private:
 	//	캐릭터의 회전 관련 설정을 저장하기 위한 변수
 	bool bSavedUseControllerRotationYaw = false;
 	bool bSavedOrientRotationToMovement = false;
 	bool bSavedUseControllerDesiredRotation = false;
-
+	
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

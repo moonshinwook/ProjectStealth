@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
+
 // 전방 선언
 class UAnimMonatge;
 
@@ -34,6 +35,12 @@ protected:
 	//	피암살 처리
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|State")
 	bool bIsBeingAssassinated = false;
+	//	사망 처리
+private:
+	void OnChokeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+public:
+	UFUNCTION(BlueprintCallable, Category = "Enemy|Death")
+	void EnableRagdoll();
 
 protected:
 	//	적이 초크를 당하는 몽타주

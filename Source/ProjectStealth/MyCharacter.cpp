@@ -59,6 +59,8 @@ void AMyCharacter::BeginPlay()
 
 
 
+
+
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
@@ -209,29 +211,7 @@ void AMyCharacter::KeyCrouch()
 	}
 }
 
-void AMyCharacter::KeyAssassination()
-{
 
-
-	if (IsValid(AnimInstance))
-	{
-		AnimInstance->PlayAssassinationAttackMontage();
-
-	}
-
-	//	현재 레벨에서 Enemy 한명 찾기
-	AEnemy* Enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
-	
-	UE_LOG(LogTemp, Log, TEXT("Found Enemy : %s"), *GetNameSafe(Enemy));
-
-	//	Enemy가 유효하면 Enemy의 PlayChoke() 함수 호출
-	if (IsValid(Enemy))
-	{
-		Enemy->PlayChoke();
-	}
-
-
-}
 
 //	암살 중인지 확인하는 코드
 void AMyCharacter::SetIsAssassinating(bool bNewIsAssassinating)
@@ -253,4 +233,34 @@ void AMyCharacter::SetIsAssassinating(bool bNewIsAssassinating)
 		bUseControllerRotationRoll = false;
 
 	}
+}
+
+void AMyCharacter::KeyAssassination()
+{
+	//	암살 중 재입력 제한
+	if (bIsAssassinating)
+	{
+		return;
+	}
+
+	if (IsValid(AnimInstance))
+	{
+		AnimInstance->PlayAssassinationAttackMontage();
+
+		//	Capsule Collision 해제
+		//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	}
+
+	//	현재 레벨에서 Enemy 한명 찾기
+	AEnemy* Enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
+
+	UE_LOG(LogTemp, Log, TEXT("Found Enemy : %s"), *GetNameSafe(Enemy));
+
+	//	Enemy가 유효하면 Enemy의 PlayChoke() 함수 호출
+	if (IsValid(Enemy))
+	{
+		Enemy->PlayChoke();
+	}
+
 }
