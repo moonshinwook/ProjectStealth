@@ -155,5 +155,7 @@ void UMyAnimInstance::OnAssassinationMontageEnded(UAnimMontage* Montage, bool bI
 	{
 		// 정상 종료와 중간에 끊긴 경우 모두 이동 제한 해제
 		Character->SetIsAssassinating(false);
+		// 몽타지 종료시점에 Player 회전값 적용을 위한 코드 추가
+		Character->SetIsAssassinatingEnd();
 	}
 }

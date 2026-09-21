@@ -229,11 +229,11 @@ void AMyCharacter::SetIsAssassinating(bool bNewIsAssassinating)
 		
 		//	암살 중에는 캐릭터가 회전하지 않도록 설정
 		bUseControllerRotationYaw = false;
-		bUseControllerRotationPitch = false;
-		bUseControllerRotationRoll = false;
 
 	}
 }
+
+
 
 void AMyCharacter::KeyAssassination()
 {
@@ -262,5 +262,10 @@ void AMyCharacter::KeyAssassination()
 	{
 		Enemy->PlayChoke();
 	}
+}
 
+void AMyCharacter::SetIsAssassinatingEnd()
+{
+	//	암살이 끝나면 캐릭터의 회전 관련 설정을 원래대로 복원
+	bUseControllerRotationYaw = true;
 }

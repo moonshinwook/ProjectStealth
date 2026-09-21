@@ -37,15 +37,16 @@ protected:
 //	암살관련 정의
 public:
 	void SetIsAssassinating(bool bNewIsAssassinating);
+	void SetIsAssassinatingEnd();
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Player|Assassination")
 	bool bIsAssassinating = false;
 
+
 private:
 	//	캐릭터의 회전 관련 설정을 저장하기 위한 변수
 	bool bSavedUseControllerRotationYaw = false;
-	bool bSavedOrientRotationToMovement = false;
-	bool bSavedUseControllerDesiredRotation = false;
+
 	
 public:	
 	virtual void Tick(float DeltaTime) override;
