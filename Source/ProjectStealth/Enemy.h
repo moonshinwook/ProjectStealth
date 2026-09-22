@@ -9,6 +9,7 @@
 
 // 전방 선언
 class UAnimMonatge;
+class UArrowComponent;
 
 UCLASS()
 class PROJECTSTEALTH_API AEnemy : public ACharacter
@@ -21,6 +22,11 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy|Assassination", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UArrowComponent> AssassinationPoint;
+public:
+	FTransform GetAssassinationTransform() const;
 protected:
 	//	최대 체력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|State")

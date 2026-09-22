@@ -6,15 +6,29 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+//	화살표 표시를 위한 헤더파일
+#include "Components/ArrowComponent.h"
 #include "MyCharacter.h"
 
 
-// Sets default values
+// Sets default values, 생성자.
 AEnemy::AEnemy()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CurrentHealth = MaxHealth;
+	//	암살 포인트를 나타내는 화살표 컴포넌트 생성, 위치 방향 표시
+	AssassinationPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("AssassinationPoint"));
+	//	Enemy의 루트 컴포넌트에 부착
+	AssassinationPoint->SetupAttachment(GetRootComponent());
+	//	임시 기준값 : Enemy 기준 뒤쪽 80cm
+	AssassinationPoint->SetRelativeLocation(FVector(-35.0f, 0.0f, 0.0f));
+	//	Enemy와 같은 방향
+	AssassinationPoint->SetRelativeRotation(FRotator::ZeroRotator);
+	//	기존 화살표와 구분하기 위한 색상
+	AssassinationPoint->SetArrowColor(FColor::Green);
+	//	게임 실행 중에 화살표 숨김 해제, 육안으로 확인용
+	AssassinationPoint->SetHiddenInGame(false);
 }
 
 
@@ -23,6 +37,11 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentHealth = MaxHealth;
+}
+
+FTransform AEnemy::GetAssassinationTransform() const
+{
+	return AssassinationPoint->GetComponentTransform();
 }
 
 void AEnemy::OnChokeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -81,7 +100,7 @@ void AEnemy::PlayChoke()
 {
 	UE_LOG(LogTemp, Warning, TEXT("PlayChoke Called / Montage: %s"), *GetNameSafe(ChokeMontage));
 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if (ChokeMontage)
 	{
@@ -90,7 +109,7 @@ void AEnemy::PlayChoke()
 		UE_LOG(LogTemp, Warning, TEXT("Choke Play Result: %f"), Result);
 
 		// Enemy를 월드 좌표 X=0, Y=0, Z=0으로 이동
-		SetActorLocation(FVector(80.0f, 0.0f, 90.0f));
+		//SetActorLocation(FVector(80.0f, 0.0f, 90.0f));
 
 		if (Result > 0.0f)
 		{

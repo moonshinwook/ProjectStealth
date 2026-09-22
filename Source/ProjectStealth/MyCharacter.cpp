@@ -29,8 +29,6 @@ AMyCharacter::AMyCharacter()
 	if (SM.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(SM.Object);
-
-
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
 
@@ -247,6 +245,7 @@ void AMyCharacter::KeyAssassination()
 		return;
 	}
 
+
 	if (IsValid(AnimInstance))
 	{
 		AnimInstance->PlayAssassinationAttackMontage();
@@ -261,11 +260,37 @@ void AMyCharacter::KeyAssassination()
 
 	UE_LOG(LogTemp, Log, TEXT("Found Enemy : %s"), *GetNameSafe(Enemy));
 
+	//	적이 없으면 반환
+	if (!IsValid(Enemy))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Assassination: Enemy not found"));
+		return;
+	}
+
+
+
 	//	Enemy가 유효하면 Enemy의 PlayChoke() 함수 호출
 	if (IsValid(Enemy))
 	{
+		//	Enemy의 암살 기준점 정보 가져오기.
+		const FTransform TargetTransform = Enemy->GetAssassinationTransform();
+
+		//	몽타주 재생 전에 워핑 목표 등록
+		MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform(FName(TEXT("AssassinationTarget")), TargetTransform);
+
+		//	목표 위치 방향 확인
+		UE_LOG(LogTemp, Log, TEXT("Assassination Target : %s / Location : %s / Rotation : %s"),
+			*GetNameSafe(Enemy), *TargetTransform.GetLocation().ToString(), *TargetTransform.Rotator().ToString());
+		
+		//	플레이어 Motion Warping 동안 대상 적과의 충돌 무시.
+		GetCapsuleComponent()->IgnoreActorWhenMoving(Enemy, true);
+		// 대상 적이 이동할 때 플레이어와의 충돌 무시
+		Enemy->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
+
 		Enemy->PlayChoke();
 	}
+
+
 }
 
 void AMyCharacter::SetIsAssassinatingEnd()
