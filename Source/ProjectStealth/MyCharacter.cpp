@@ -7,6 +7,8 @@
 #include "MyAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+//	MotionWarping용 헤더파일
+#include "MotionWarpingComponent.h"
 
 #include "Enemy.h"
 //	블루프린트와 C++ 코드 모두에서 호출할 수 있는 유용한 게임플레이 유틸리티 함수들을 포함하는 정적 클래스
@@ -19,6 +21,8 @@ AMyCharacter::AMyCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SM(TEXT("/Game/Man/Mesh/Full/SK_Man_Full_04.SK_Man_Full_04"));
+	//	MotionWarpingComponet 생성자 추가.
+	MotionWarpingComponent =CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 

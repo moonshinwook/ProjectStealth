@@ -6,8 +6,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
 #include "MyCharacter.h"
+
 
 // Sets default values
 AEnemy::AEnemy()

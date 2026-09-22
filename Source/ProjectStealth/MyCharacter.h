@@ -11,6 +11,7 @@
 
 class UMyAnimInstance;
 class AEnemy;  
+class UMotionWarpingComponent;
 
 UCLASS()
 class PROJECTSTEALTH_API AMyCharacter : public ACharacter
@@ -19,6 +20,8 @@ class PROJECTSTEALTH_API AMyCharacter : public ACharacter
 private:
 	UPROPERTY(VisibleAnywhere)
 	class UMyAnimInstance* AnimInstance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Player|Assassination",meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 
 public:
 	UPROPERTY(VisibleAnywhere)
