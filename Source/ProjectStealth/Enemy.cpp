@@ -72,6 +72,9 @@ void AEnemy::EnableRagdoll()
 	// 몸에 래그돌용 충돌 설정 적용
 	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
 
+	// Player 캡슐이 사용하는 Pawn 채널과 충돌하지 않도록 설정
+	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
 	// 중력과 물리 시뮬레이션 활성화
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetSimulatePhysics(true);
