@@ -1,0 +1,22 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "HealthBarWidget.generated.h"
+
+class UProgressBar;
+
+UCLASS()
+class PROJECTSTEALTH_API UHealthBarWidget : public UUserWidget
+{
+    GENERATED_BODY()
+
+public:
+    void UpdateHealth(float CurrentHealth, float MaxHealth);
+
+private:
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UProgressBar> HPBar;
+};

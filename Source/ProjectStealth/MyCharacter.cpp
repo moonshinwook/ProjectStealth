@@ -9,6 +9,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 //	MotionWarping용 헤더파일
 #include "MotionWarpingComponent.h"
+//	HPBarWidget용 헤더파일
+#include "Components/WidgetComponent.h"
+#include "HealthBarWidget.h"
 
 #include "Enemy.h"
 //	블루프린트와 C++ 코드 모두에서 호출할 수 있는 유용한 게임플레이 유틸리티 함수들을 포함하는 정적 클래스
@@ -42,6 +45,22 @@ AMyCharacter::AMyCharacter()
 	SpringArm->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 100.0f), FRotator(-25.0f, 0.0f, 0.0f));
 	SpringArm->bUsePawnControlRotation = true;
 
+	// 먼저 HP바 컴포넌트 생성
+	HealthBarComponent =CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
+
+	HealthBarComponent->SetupAttachment(RootComponent);
+	//	머리 위 위치
+	HealthBarComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 120.0f));
+
+	//	화면을 향하는 UI
+	HealthBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
+
+	HealthBarComponent->SetDrawSize(FVector2D(200.0f, 20.0f));
+	HealthBarComponent->SetPivot(FVector2D(0.5f, 0.5f));
+
+	HealthBarComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+
 	static ConstructorHelpers::FClassFinder<UAnimInstance> ANI(TEXT("/Script/Engine.AnimBlueprint'/Game/BluePrints/ABP_MyCharacter.ABP_MyCharacter_C'"));
 	if (ANI.Succeeded())
 	{
@@ -55,8 +74,40 @@ AMyCharacter::AMyCharacter()
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MaxHealth = 100.0f;
+	CurrentHealth = MaxHealth;
 	
+	UpdateHealthUI();
+
 	AnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
+}
+
+//	체력 계산
+float AMyCharacter::GetHealthPercent() const
+{
+	// 최대 체력이 0일 때 나눗셈 방지
+	if (MaxHealth <= 0.0f)
+	{
+		return 0.0f;
+	}
+	return FMath::Clamp(CurrentHealth / MaxHealth, 0.0f, 1.0f);
+}
+
+//	HealthBar Update
+void AMyCharacter::UpdateHealthUI()
+{
+	if (!IsValid(HealthBarComponent))
+	{
+		return;
+	}
+	
+	UHealthBarWidget* HealthWidget = Cast<UHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
+
+	if (IsValid(HealthWidget))
+	{
+		HealthWidget->UpdateHealth(CurrentHealth, MaxHealth);
+	}
 }
 
 

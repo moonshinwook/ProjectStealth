@@ -8,7 +8,7 @@
 #include "MyCharacter.generated.h"
 
 
-
+class UWidgetComponent;
 class UMyAnimInstance;
 class AEnemy;  
 class UMotionWarpingComponent;
@@ -22,7 +22,13 @@ private:
 	class UMyAnimInstance* AnimInstance;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Player|Assassination",meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
-
+protected:
+	//	최대 체력
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player|State")
+	float MaxHealth = 100.0f;
+	//	현재 체력
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player|State")
+	float CurrentHealth = 100.0f;
 public:
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* SpringArm;
@@ -36,6 +42,16 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+public:
+	// 현재 체력을 0~1 비율로 반환
+	UFUNCTION(BlueprintPure, Category = "Character|Health")
+	float GetHealthPercent() const;
+	void UpdateHealthUI();
+private:
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Character|UI",meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWidgetComponent> HealthBarComponent;
+
 
 //	암살관련 정의
 public:

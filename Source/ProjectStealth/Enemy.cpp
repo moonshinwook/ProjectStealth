@@ -36,6 +36,7 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
 }
 
