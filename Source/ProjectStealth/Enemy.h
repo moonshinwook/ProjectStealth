@@ -7,9 +7,12 @@
 #include "Enemy.generated.h"
 
 
+
+
 // 전방 선언
 class UAnimMonatge;
 class UArrowComponent;
+class UWidgetComponent;
 
 UCLASS()
 class PROJECTSTEALTH_API AEnemy : public ACharacter
@@ -25,6 +28,9 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy|Assassination", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UArrowComponent> AssassinationPoint;
+private:
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	TObjectPtr<UWidgetComponent> HealthBarComponent;
 public:
 	FTransform GetAssassinationTransform() const;
 protected:

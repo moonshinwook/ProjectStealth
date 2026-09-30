@@ -9,6 +9,9 @@
 //	화살표 표시를 위한 헤더파일
 #include "Components/ArrowComponent.h"
 #include "MyCharacter.h"
+//	HealthBarWidget 헤더파일
+#include "HealthBarWidget.h"
+#include "Components/WidgetComponent.h"
 
 
 // Sets default values, 생성자.
@@ -29,6 +32,10 @@ AEnemy::AEnemy()
 	AssassinationPoint->SetArrowColor(FColor::Green);
 	//	게임 실행 중에 화살표 숨김 해제, 육안으로 확인용
 	AssassinationPoint->SetHiddenInGame(false);
+
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
+
+	UHealthBarWidget::SetupHealthBarComponent(HealthBarComponent, RootComponent);
 }
 
 

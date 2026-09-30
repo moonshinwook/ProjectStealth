@@ -3,6 +3,8 @@
 
 #include "HealthBarWidget.h"
 #include "Components/ProgressBar.h"
+#include "Components/WidgetComponent.h"
+
 
 void UHealthBarWidget::UpdateHealth(float CurrentHealth, float MaxHealth)
 {
@@ -20,12 +22,27 @@ void UHealthBarWidget::UpdateHealth(float CurrentHealth, float MaxHealth)
     }
 
     // 현재 체력을 0~1 비율로 계산
-    const float HealthPercent = FMath::Clamp(
-        CurrentHealth / MaxHealth,
-        0.0f,
-        1.0f
-    );
+    const float HealthPercent = FMath::Clamp(CurrentHealth / MaxHealth, 0.0f, 1.0f);
 
     // 계산한 비율을 HP바에 반영
     HPBar->SetPercent(HealthPercent);
+}
+
+void UHealthBarWidget::SetupHealthBarComponent(UWidgetComponent* InComponent, USceneComponent* Inparent, float Height)
+{
+	if (!InComponent || !Inparent)
+	{
+		return;
+	}
+
+	InComponent->SetupAttachment(Inparent);
+    
+    InComponent->SetRelativeLocation(FVector(0.0f, 0.0f, Height));
+
+    InComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	InComponent->SetDrawSize(FVector2D(200.0f, 20.0f));
+    InComponent->SetPivot(FVector2D(0.5f, 0.5f));
+
+    InComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }

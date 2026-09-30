@@ -10,8 +10,8 @@
 //	MotionWarping용 헤더파일
 #include "MotionWarpingComponent.h"
 //	HPBarWidget용 헤더파일
-#include "Components/WidgetComponent.h"
 #include "HealthBarWidget.h"
+#include "Components/WidgetComponent.h"
 
 #include "Enemy.h"
 //	블루프린트와 C++ 코드 모두에서 호출할 수 있는 유용한 게임플레이 유틸리티 함수들을 포함하는 정적 클래스
@@ -25,7 +25,7 @@ AMyCharacter::AMyCharacter()
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SM(TEXT("/Game/Man/Mesh/Full/SK_Man_Full_04.SK_Man_Full_04"));
 	//	MotionWarpingComponet 생성자 추가.
-	MotionWarpingComponent =CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
@@ -45,20 +45,9 @@ AMyCharacter::AMyCharacter()
 	SpringArm->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 100.0f), FRotator(-25.0f, 0.0f, 0.0f));
 	SpringArm->bUsePawnControlRotation = true;
 
-	// 먼저 HP바 컴포넌트 생성
-	HealthBarComponent =CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
 
-	HealthBarComponent->SetupAttachment(RootComponent);
-	//	머리 위 위치
-	HealthBarComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 120.0f));
-
-	//	화면을 향하는 UI
-	HealthBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
-
-	HealthBarComponent->SetDrawSize(FVector2D(200.0f, 20.0f));
-	HealthBarComponent->SetPivot(FVector2D(0.5f, 0.5f));
-
-	HealthBarComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	UHealthBarWidget::SetupHealthBarComponent(HealthBarComponent, RootComponent);
 
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> ANI(TEXT("/Script/Engine.AnimBlueprint'/Game/BluePrints/ABP_MyCharacter.ABP_MyCharacter_C'"));
