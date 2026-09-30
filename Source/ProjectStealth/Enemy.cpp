@@ -13,6 +13,8 @@
 #include "HealthBarWidget.h"
 #include "Components/WidgetComponent.h"
 
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values, 생성자.
 AEnemy::AEnemy()
@@ -107,20 +109,37 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	// 피해 적용, 체력이 음수가 되지 않도록 제한
+	CurrentHealth = FMath::Max(CurrentHealth - Damage, 0.0f);
+
+	// 이 Enemy의 컴포넌트에 표시 중인 위젯 가져오기
+	if (IsValid(HealthBarComponent))
+	{
+		UHealthBarWidget* HealthWidget = Cast<UHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
+
+		if (IsValid(HealthWidget))
+		{
+			// 변경된 체력을 전달하여 HP바 갱신
+			HealthWidget->UpdateHealth(CurrentHealth, MaxHealth);
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("남은 체력 : %f"), CurrentHealth);
+
+	return Damage;
+}
+
 void AEnemy::PlayChoke()
 {
 	UE_LOG(LogTemp, Warning, TEXT("PlayChoke Called / Montage: %s"), *GetNameSafe(ChokeMontage));
-
-	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if (ChokeMontage)
 	{
 		const float Result = PlayAnimMontage(ChokeMontage);
 
 		UE_LOG(LogTemp, Warning, TEXT("Choke Play Result: %f"), Result);
-
-		// Enemy를 월드 좌표 X=0, Y=0, Z=0으로 이동
-		//SetActorLocation(FVector(80.0f, 0.0f, 90.0f));
 
 		if (Result > 0.0f)
 		{

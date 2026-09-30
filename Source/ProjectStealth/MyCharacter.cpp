@@ -229,10 +229,14 @@ void AMyCharacter::PlayerAttack()
 		2.0f
 	);
 
-	if (Result)
+	if (Result && HitResult.GetActor())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Hit : %s"), *HitResult.GetActor()->GetName());
+		AActor* Target = HitResult.GetActor();
+
+		UGameplayStatics::ApplyDamage(Target, 10.0f, GetController(), this, NULL);
 	}
+
 
 }
 
