@@ -15,6 +15,8 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "CharacterStateComponent.h"
+
 
 // Sets default values, 생성자.
 AEnemy::AEnemy()
@@ -22,6 +24,9 @@ AEnemy::AEnemy()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CurrentHealth = MaxHealth;
+
+	StateComponent = CreateDefaultSubobject<UCharacterStateComponent>(TEXT("StateComponent"));
+
 	//	암살 포인트를 나타내는 화살표 컴포넌트 생성, 위치 방향 표시
 	AssassinationPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("AssassinationPoint"));
 	//	Enemy의 루트 컴포넌트에 부착
@@ -33,7 +38,7 @@ AEnemy::AEnemy()
 	//	기존 화살표와 구분하기 위한 색상
 	AssassinationPoint->SetArrowColor(FColor::Green);
 	//	게임 실행 중에 화살표 숨김 해제, 육안으로 확인용
-	AssassinationPoint->SetHiddenInGame(false);
+	//AssassinationPoint->SetHiddenInGame(false);
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
 
@@ -47,6 +52,22 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
+
+
+	//	캐릭터 상태 컴포넌트 유효성 검사 및 상태 출력
+	if (IsValid(StateComponent))
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Player: %s] LifeState = %s / DetectionState = %s"),
+			*GetName(),
+			StateComponent->IsAlive() ? TEXT("Alive") : TEXT("Dead"),
+			StateComponent->IsDetected() ? TEXT("Detected") : TEXT("Hidden"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[Player: %s] StateComponent is invalid"),
+			*GetName());
+	}
 }
 
 FTransform AEnemy::GetAssassinationTransform() const
@@ -90,9 +111,7 @@ void AEnemy::EnableRagdoll()
 	GetMesh()->SetSimulatePhysics(true);
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("Ragdoll / IsSimulatingPhysics: %s"),
-		GetMesh()->IsSimulatingPhysics() ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("Ragdoll / IsSimulatingPhysics: %s"), GetMesh()->IsSimulatingPhysics() ? TEXT("true") : TEXT("false"));
 }
 
 // Called every frame

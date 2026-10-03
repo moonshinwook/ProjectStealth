@@ -13,6 +13,7 @@
 class UAnimMonatge;
 class UArrowComponent;
 class UWidgetComponent;
+class UCharacterStateComponent;
 
 UCLASS()
 class PROJECTSTEALTH_API AEnemy : public ACharacter
@@ -47,6 +48,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|State")
 	bool bIsBeingAssassinated = false;
 	//	사망 처리
+private:
+	UPROPERTY(VisibleAnywhere, Category = "State")
+	TObjectPtr<UCharacterStateComponent> StateComponent;
+
+
 private:
 	void OnChokeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 public:

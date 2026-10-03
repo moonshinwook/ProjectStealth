@@ -11,8 +11,6 @@ class UProgressBar;
 class UWidgetComponent;
 class USceneComponent;
 
-
-
 UCLASS()
 class PROJECTSTEALTH_API UHealthBarWidget : public UUserWidget
 {
@@ -21,7 +19,6 @@ class PROJECTSTEALTH_API UHealthBarWidget : public UUserWidget
 public:
     void UpdateHealth(float CurrentHealth, float MaxHealth);
     static void SetupHealthBarComponent(UWidgetComponent* InComponent, USceneComponent* Inparent, float Height = 120.0f);
-
 
 private:
     UPROPERTY(meta = (BindWidget))

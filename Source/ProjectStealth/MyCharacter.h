@@ -12,6 +12,7 @@ class UWidgetComponent;
 class UMyAnimInstance;
 class AEnemy;  
 class UMotionWarpingComponent;
+class UCharacterStateComponent;
 
 UCLASS()
 class PROJECTSTEALTH_API AMyCharacter : public ACharacter
@@ -66,7 +67,10 @@ private:
 	//	캐릭터의 회전 관련 설정을 저장하기 위한 변수
 	bool bSavedUseControllerRotationYaw = false;
 
-	
+private:
+	UPROPERTY(VisibleAnywhere, Category = "State")
+	TObjectPtr<UCharacterStateComponent> StateComponent;
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

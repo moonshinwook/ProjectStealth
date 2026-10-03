@@ -17,6 +17,8 @@
 //	블루프린트와 C++ 코드 모두에서 호출할 수 있는 유용한 게임플레이 유틸리티 함수들을 포함하는 정적 클래스
 #include "Kismet/GameplayStatics.h"
 
+#include "CharacterStateComponent.h"
+
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
@@ -26,6 +28,8 @@ AMyCharacter::AMyCharacter()
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SM(TEXT("/Game/Man/Mesh/Full/SK_Man_Full_04.SK_Man_Full_04"));
 	//	MotionWarpingComponet 생성자 추가.
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+
+	StateComponent = CreateDefaultSubobject<UCharacterStateComponent>(TEXT("StateComponent"));
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
@@ -56,13 +60,28 @@ AMyCharacter::AMyCharacter()
 		GetMesh()->SetAnimClass(ANI.Class);
 	}
 
-	GetCapsuleComponent()->SetHiddenInGame(false);
+	//GetCapsuleComponent()->SetHiddenInGame(false);
 }
 
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//	캐릭터 상태 컴포넌트 유효성 검사 및 상태 출력
+	if (IsValid(StateComponent))
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[Player: %s] LifeState = %s / DetectionState = %s"),
+			*GetName(),
+			StateComponent->IsAlive() ? TEXT("Alive") : TEXT("Dead"),
+			StateComponent->IsDetected() ? TEXT("Detected") : TEXT("Hidden"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[Player: %s] StateComponent is invalid"),
+			*GetName());
+	}
 
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
@@ -217,17 +236,17 @@ void AMyCharacter::PlayerAttack()
 
 	FVector Center = StartPos + FwdVector * 0.5f;
 
-	DrawDebugCapsule
-	(
-		GetWorld(), 
-		StartPos, 
-		AttackHalfHeight, 
-		AttackRadius, 
-		AttackRotation, 
-		DebugColor, 
-		false, 
-		2.0f
-	);
+	//DrawDebugCapsule
+	//(
+	//	GetWorld(), 
+	//	StartPos, 
+	//	AttackHalfHeight, 
+	//	AttackRadius, 
+	//	AttackRotation, 
+	//	DebugColor, 
+	//	false, 
+	//	2.0f
+	//);
 
 	if (Result && HitResult.GetActor())
 	{
