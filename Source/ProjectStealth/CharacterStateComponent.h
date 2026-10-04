@@ -38,11 +38,15 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowprivateAccess="true"))
+	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowprivateAccess = "true"))
 	ELifeState LifeState = ELifeState::Alive;
 	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowprivateAccess = "true"))
 	EDetectionState PlayerDetectionState = EDetectionState::Hidden;
-
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowprivateAccess = "true", ClampMin = "1.0"))
+	float MaxHealth = 100.0f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowprivateAccess = "true"))
+	float CurrentHealth = 100.0f;
 public:
 	// 생존 상태인지 확인
 	bool IsAlive() const
@@ -72,5 +76,19 @@ public:
 	void MarkHidden()
 	{
 		PlayerDetectionState = EDetectionState::Hidden;
+	}
+
+public:
+	//	피해를	적용하고 실제로 감소한 체력을 반환
+	float ReceiveDamage(float Damage);
+
+	float GetCurrentHealth() const
+	{
+		return CurrentHealth;
+	}
+
+	float GetMaxHealth() const
+	{
+		return MaxHealth;
 	}
 };

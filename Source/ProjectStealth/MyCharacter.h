@@ -71,6 +71,10 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "State")
 	TObjectPtr<UCharacterStateComponent> StateComponent;
 
+public:
+	void EnableRagdoll();
+public:
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -86,4 +90,9 @@ public:
 	void PlayerAttack();
 	void KeyCrouch();
 	void KeyAssassination();
+
+
+private:
+	void TestSelfDamage();
+
 };

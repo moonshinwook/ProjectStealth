@@ -18,12 +18,12 @@
 #include "CharacterStateComponent.h"
 
 
+
 // Sets default values, 생성자.
 AEnemy::AEnemy()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	CurrentHealth = MaxHealth;
 
 	StateComponent = CreateDefaultSubobject<UCharacterStateComponent>(TEXT("StateComponent"));
 
@@ -77,9 +77,7 @@ FTransform AEnemy::GetAssassinationTransform() const
 
 void AEnemy::OnChokeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("Choke Ended / Interrupted: %s"),
-			bInterrupted ? TEXT("true") : TEXT("false"));
+		UE_LOG(LogTemp, Warning,TEXT("Choke Ended / Interrupted: %s"), bInterrupted ? TEXT("true") : TEXT("false"));
 
 		// 중단된 경우는 제외하고, 정상 종료했을 때만 실행
 		if (!bInterrupted)
@@ -130,24 +128,38 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	// 피해 적용, 체력이 음수가 되지 않도록 제한
-	CurrentHealth = FMath::Max(CurrentHealth - Damage, 0.0f);
-
-	// 이 Enemy의 컴포넌트에 표시 중인 위젯 가져오기
-	if (IsValid(HealthBarComponent))
+	if (!IsValid(StateComponent))
 	{
-		UHealthBarWidget* HealthWidget = Cast<UHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
-
-		if (IsValid(HealthWidget))
-		{
-			// 변경된 체력을 전달하여 HP바 갱신
-			HealthWidget->UpdateHealth(CurrentHealth, MaxHealth);
-		}
+		return 0.0f;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("남은 체력 : %f"), CurrentHealth);
+	// 체력 감소 및 사망 상태 처리
+	const float AppliedDamage = StateComponent->ReceiveDamage(Damage);
 
-	return Damage;
+	// 변경된 체력으로 HP바 갱신
+	UpdateHealthUI();
+
+	return AppliedDamage;
+}
+
+void AEnemy::UpdateHealthUI()
+{
+	// 상태 컴포넌트와 HP바 컴포넌트 확인
+	if (!IsValid(StateComponent) || !IsValid(HealthBarComponent))
+	{
+		return;
+	}
+
+	UHealthBarWidget* HealthWidget =
+		Cast<UHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
+
+	if (!IsValid(HealthWidget))
+	{
+		return;
+	}
+
+	// 컴포넌트의 체력으로 HP바 갱신
+	HealthWidget->UpdateHealth(StateComponent->GetCurrentHealth(), StateComponent->GetMaxHealth());
 }
 
 void AEnemy::PlayChoke()
@@ -167,9 +179,7 @@ void AEnemy::PlayChoke()
 				FOnMontageEnded EndDelegate;
 				EndDelegate.BindUObject(this, &AEnemy::OnChokeMontageEnded);
 
-				AnimInstance->Montage_SetEndDelegate(
-					EndDelegate, ChokeMontage
-				);
+				AnimInstance->Montage_SetEndDelegate(EndDelegate, ChokeMontage);
 			}
 		}
 

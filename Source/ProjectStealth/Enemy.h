@@ -51,8 +51,6 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, Category = "State")
 	TObjectPtr<UCharacterStateComponent> StateComponent;
-
-
 private:
 	void OnChokeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 public:
@@ -72,6 +70,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	void UpdateHealthUI();
 public:
 	void PlayChoke();
 };

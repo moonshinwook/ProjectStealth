@@ -18,6 +18,11 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "CharacterStateComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+
+#include "GameFramework/DamageType.h"
+#include "Components/InputComponent.h"
+#include "InputCoreTypes.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -71,20 +76,14 @@ void AMyCharacter::BeginPlay()
 	//	캐릭터 상태 컴포넌트 유효성 검사 및 상태 출력
 	if (IsValid(StateComponent))
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[Player: %s] LifeState = %s / DetectionState = %s"),
-			*GetName(),
+		UE_LOG(LogTemp, Warning, TEXT("[Player: %s] LifeState = %s / DetectionState = %s"), *GetName(),
 			StateComponent->IsAlive() ? TEXT("Alive") : TEXT("Dead"),
 			StateComponent->IsDetected() ? TEXT("Detected") : TEXT("Hidden"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[Player: %s] StateComponent is invalid"),
-			*GetName());
+		UE_LOG(LogTemp, Error, TEXT("[Player: %s] StateComponent is invalid"), *GetName());
 	}
-
-	MaxHealth = 100.0f;
-	CurrentHealth = MaxHealth;
 	
 	UpdateHealthUI();
 
@@ -105,22 +104,75 @@ float AMyCharacter::GetHealthPercent() const
 //	HealthBar Update
 void AMyCharacter::UpdateHealthUI()
 {
-	if (!IsValid(HealthBarComponent))
+	// 상태 컴포넌트와 HP바 컴포넌트 확인
+	if (!IsValid(StateComponent) || !IsValid(HealthBarComponent))
 	{
 		return;
 	}
-	
-	UHealthBarWidget* HealthWidget = Cast<UHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
 
-	if (IsValid(HealthWidget))
+	UHealthBarWidget* HealthWidget =
+		Cast<UHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
+
+	if (!IsValid(HealthWidget))
 	{
-		HealthWidget->UpdateHealth(CurrentHealth, MaxHealth);
+		return;
 	}
+
+	// 컴포넌트의 체력으로 HP바 갱신
+	HealthWidget->UpdateHealth(StateComponent->GetCurrentHealth(), StateComponent->GetMaxHealth());
 }
 
 
+void AMyCharacter::EnableRagdoll()
+{
+	if (GetMesh()->IsSimulatingPhysics())
+	{
+		return;
+	}
 
+	//	 이동 입력과 현재 이동 제거
+	ConsumeMovementInputVector();
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->DisableMovement();
 
+	//	캐릭터 캡슐 충돌 해제
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	//	메시를 물리 래그돌로 전환
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+	GetMesh()->SetSimulatePhysics(true);
+
+	UE_LOG(LogTemp, Warning, TEXT("Player Ragdoll 실행 : %s"), *GetName());
+}
+
+float AMyCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (!IsValid(StateComponent))
+	{
+		return 0.0f;
+	}
+
+	// 이미 사망한 상태라면 추가 피해 및 사망 처리 방지
+	if (!StateComponent->IsAlive())
+	{
+		return 0.0f;
+	}
+
+	// 체력 감소 및 생존 → 사망 상태 변경
+	const float AppliedDamage =
+		StateComponent->ReceiveDamage(Damage);
+
+	// 변경된 체력으로 HP바 갱신
+	UpdateHealthUI();
+
+	// 이번 피해로 체력이 소진되었다면 래그돌 실행
+	if (StateComponent->GetCurrentHealth() <= 0.0f)
+	{
+		EnableRagdoll();
+	}
+
+	return AppliedDamage;
+}
 
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
@@ -144,12 +196,24 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAttack);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyCrouch);
 	PlayerInputComponent->BindAction(TEXT("Assassination"), EInputEvent::IE_Pressed, this, &AMyCharacter::KeyAssassination);	
+
+	PlayerInputComponent->BindKey(
+		EKeys::K,
+		IE_Pressed,
+		this,
+		&AMyCharacter::TestSelfDamage);
 }
 
 void AMyCharacter::KeyUpDown(float value)
 {
 	//	암살 중에는 이동하지 않도록 처리
 	if(bIsAssassinating)
+	{
+		return;
+	}
+
+	// 상태 컴포넌트가 없거나 사망했다면 이동 입력 무시
+	if (!IsValid(StateComponent) || !StateComponent->IsAlive())
 	{
 		return;
 	}
@@ -161,6 +225,12 @@ void AMyCharacter::KeyLeftRight(float value)
 {
 	//	암살 중에는 이동하지 않도록 처리
 	if (bIsAssassinating)
+	{
+		return;
+	}
+
+	// 상태 컴포넌트가 없거나 사망했다면 이동 입력 무시
+	if (!IsValid(StateComponent) || !StateComponent->IsAlive())
 	{
 		return;
 	}
@@ -186,6 +256,12 @@ void AMyCharacter::KeyRoll()
 		return;
 	}
 
+	// 상태 컴포넌트가 없거나 사망했다면 이동 입력 무시
+	if (!IsValid(StateComponent) || !StateComponent->IsAlive())
+	{
+		return;
+	}
+
 	if (IsValid(AnimInstance))
 	{
 		AnimInstance->PlayRollMontage();
@@ -199,6 +275,12 @@ void AMyCharacter::KeyAttack()
 		return;
 	}
 
+	// 상태 컴포넌트가 없거나 사망했다면 이동 입력 무시
+	if (!IsValid(StateComponent) || !StateComponent->IsAlive())
+	{
+		return;
+	}
+
 	if (IsValid(AnimInstance))
 	{
 		AnimInstance->PlayAttackMontage();
@@ -207,6 +289,12 @@ void AMyCharacter::KeyAttack()
 
 void AMyCharacter::PlayerAttack()
 {
+	// 상태 컴포넌트가 없거나 사망했다면 이동 입력 무시
+	if (!IsValid(StateComponent) || !StateComponent->IsAlive())
+	{
+		return;
+	}
+
 	FHitResult HitResult;
 	FCollisionQueryParams Params(NAME_None, false, this);
 
@@ -262,6 +350,12 @@ void AMyCharacter::PlayerAttack()
 void AMyCharacter::KeyCrouch()
 {
 	if (bIsAssassinating)
+	{
+		return;
+	}
+
+	// 상태 컴포넌트가 없거나 사망했다면 이동 입력 무시
+	if (!IsValid(StateComponent) || !StateComponent->IsAlive())
 	{
 		return;
 	}
@@ -354,6 +448,19 @@ void AMyCharacter::KeyAssassination()
 	}
 
 
+}
+
+void AMyCharacter::TestSelfDamage()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Player 피해 테스트: K 입력"));
+
+	UGameplayStatics::ApplyDamage(
+		this,                       // 피해를 받는 대상: 자신
+		25.0f,                      // 피해량
+		GetController(),            // 피해를 일으킨 컨트롤러
+		this,                       // 피해를 일으킨 Actor
+		UDamageType::StaticClass()  // 기본 피해 유형
+	);
 }
 
 void AMyCharacter::SetIsAssassinatingEnd()
