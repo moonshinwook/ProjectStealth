@@ -25,6 +25,14 @@ AEnemy::AEnemy()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Enemy의 캡슐이 카메라를 막지 않도록 설정
+	GetCapsuleComponent()->SetCollisionResponseToChannel(
+		ECC_Camera, ECR_Ignore);
+
+	// Enemy의 메시가 카메라를 막지 않도록 설정
+	GetMesh()->SetCollisionResponseToChannel(
+		ECC_Camera, ECR_Ignore);
+
 	StateComponent = CreateDefaultSubobject<UCharacterStateComponent>(TEXT("StateComponent"));
 
 	//	암살 포인트를 나타내는 화살표 컴포넌트 생성, 위치 방향 표시
@@ -107,7 +115,6 @@ void AEnemy::EnableRagdoll()
 	// 중력과 물리 시뮬레이션 활성화
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetSimulatePhysics(true);
-
 
 	UE_LOG(LogTemp, Warning, TEXT("Ragdoll / IsSimulatingPhysics: %s"), GetMesh()->IsSimulatingPhysics() ? TEXT("true") : TEXT("false"));
 }

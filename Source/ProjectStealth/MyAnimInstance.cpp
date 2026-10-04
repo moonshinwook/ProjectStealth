@@ -103,14 +103,6 @@ void UMyAnimInstance::PlayAttackMontage()
 
 void UMyAnimInstance::PlayAssassinationAttackMontage()
 {
-	//	기존 코드 -> 롤백용
-	//if (IsValid(AssassinationAttackMontage))
-	//{
-	//	if (!Montage_IsPlaying(AssassinationAttackMontage))
-	//	{
-	//		Montage_Play(AssassinationAttackMontage, 1.0f);
-	//	}
-	//}
 	if (!IsValid(AssassinationAttackMontage) || !IsValid(Character))
 	{
 		return;
@@ -122,8 +114,7 @@ void UMyAnimInstance::PlayAssassinationAttackMontage()
 		return;
 	}
 
-	const float PlayResult =
-		Montage_Play(AssassinationAttackMontage, 1.0f);
+	const float PlayResult = Montage_Play(AssassinationAttackMontage, 1.0f);
 
 	// 재생 실패 시 이동을 막지 않음
 	if (PlayResult <= 0.0f)
@@ -136,10 +127,7 @@ void UMyAnimInstance::PlayAssassinationAttackMontage()
 
 	// 이 암살 몽타주가 끝나면 호출할 함수 연결
 	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(
-		this,
-		&UMyAnimInstance::OnAssassinationMontageEnded
-	);
+	EndDelegate.BindUObject(this, &UMyAnimInstance::OnAssassinationMontageEnded);
 
 	Montage_SetEndDelegate(EndDelegate,AssassinationAttackMontage);
 }

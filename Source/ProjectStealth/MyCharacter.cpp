@@ -391,6 +391,11 @@ void AMyCharacter::KeyAssassination()
 		return;
 	}
 
+	// 상태 컴포넌트가 없거나 사망했다면 입력 무시
+	if (!IsValid(StateComponent) || !StateComponent->IsAlive())
+	{
+		return;
+	}
 
 	if (IsValid(AnimInstance))
 	{
