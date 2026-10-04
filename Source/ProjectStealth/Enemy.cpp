@@ -133,11 +133,24 @@ float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AControl
 		return 0.0f;
 	}
 
-	// 체력 감소 및 사망 상태 처리
-	const float AppliedDamage = StateComponent->ReceiveDamage(Damage);
+	// 이미 사망한 상태라면 추가 피해 및 사망 처리 방지
+	if (!StateComponent->IsAlive())
+	{
+		return 0.0f;
+	}
+
+	// 체력 감소 및 생존 → 사망 상태 변경
+	const float AppliedDamage =
+		StateComponent->ReceiveDamage(Damage);
 
 	// 변경된 체력으로 HP바 갱신
 	UpdateHealthUI();
+
+	// 이번 피해로 체력이 소진되었다면 래그돌 실행
+	if (StateComponent->GetCurrentHealth() <= 0.0f)
+	{
+		EnableRagdoll();
+	}
 
 	return AppliedDamage;
 }

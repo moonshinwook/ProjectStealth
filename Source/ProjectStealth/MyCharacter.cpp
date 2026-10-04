@@ -90,17 +90,6 @@ void AMyCharacter::BeginPlay()
 	AnimInstance = Cast<UMyAnimInstance>(GetMesh()->GetAnimInstance());
 }
 
-//	체력 계산
-float AMyCharacter::GetHealthPercent() const
-{
-	// 최대 체력이 0일 때 나눗셈 방지
-	if (MaxHealth <= 0.0f)
-	{
-		return 0.0f;
-	}
-	return FMath::Clamp(CurrentHealth / MaxHealth, 0.0f, 1.0f);
-}
-
 //	HealthBar Update
 void AMyCharacter::UpdateHealthUI()
 {
@@ -341,7 +330,7 @@ void AMyCharacter::PlayerAttack()
 		UE_LOG(LogTemp, Log, TEXT("Hit : %s"), *HitResult.GetActor()->GetName());
 		AActor* Target = HitResult.GetActor();
 
-		UGameplayStatics::ApplyDamage(Target, 10.0f, GetController(), this, NULL);
+		UGameplayStatics::ApplyDamage(Target, 25.0f, GetController(), this, NULL);
 	}
 
 

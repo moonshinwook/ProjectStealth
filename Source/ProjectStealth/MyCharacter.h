@@ -45,9 +45,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// 현재 체력을 0~1 비율로 반환
-	UFUNCTION(BlueprintPure, Category = "Character|Health")
-	float GetHealthPercent() const;
 	void UpdateHealthUI();
 private:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Character|UI",meta = (AllowPrivateAccess = "true"))
