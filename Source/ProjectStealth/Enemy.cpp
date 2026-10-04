@@ -83,28 +83,21 @@ FTransform AEnemy::GetAssassinationTransform() const
 	return AssassinationPoint->GetComponentTransform();
 }
 
-void AEnemy::OnChokeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-	{
-		UE_LOG(LogTemp, Warning,TEXT("Choke Ended / Interrupted: %s"), bInterrupted ? TEXT("true") : TEXT("false"));
-
-		// 중단된 경우는 제외하고, 정상 종료했을 때만 실행
-		if (!bInterrupted)
-		{
-			EnableRagdoll();
-		}
-}
-
 //	사망 처리 표현 코드
 void AEnemy::EnableRagdoll()
 {
+	// 이미 래그돌 상태라면 중복 실행 방지
+	if (GetMesh()->IsSimulatingPhysics())
+	{
+		return;
+	}
+	
 	// 캐릭터 이동 중단
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 
 	// 캡슐 충돌 해제
-	GetCapsuleComponent()->SetCollisionEnabled(
-		ECollisionEnabled::NoCollision
-	);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// 몸에 래그돌용 충돌 설정 적용
 	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
@@ -191,20 +184,30 @@ void AEnemy::PlayChoke()
 		const float Result = PlayAnimMontage(ChokeMontage);
 
 		UE_LOG(LogTemp, Warning, TEXT("Choke Play Result: %f"), Result);
-
-		if (Result > 0.0f)
-		{
-			if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
-			{
-				FOnMontageEnded EndDelegate;
-				EndDelegate.BindUObject(this, &AEnemy::OnChokeMontageEnded);
-
-				AnimInstance->Montage_SetEndDelegate(EndDelegate, ChokeMontage);
-			}
-		}
-
 	}
 
+
+}
+
+void AEnemy::CompleteAssassination()
+{
+	if (!StateComponent->IsAlive())
+	{
+		return;
+	}
+
+	// 남은 체력만큼 피해를 적용하여 체력 0 및 dead 상태로 변경
+	const float RemainHealth = StateComponent->GetCurrentHealth();
+
+	StateComponent->ReceiveDamage(RemainHealth);
+
+	// HP바 갱신
+	UpdateHealthUI();
+
+	UE_LOG(LogTemp, Warning, TEXT("[%s] 암살 완료 / Health: %.1f / Alive: %s"),
+		*GetName(),
+		StateComponent->GetCurrentHealth(),
+		StateComponent->IsAlive() ? TEXT("true") : TEXT("false"));
 }
 
 

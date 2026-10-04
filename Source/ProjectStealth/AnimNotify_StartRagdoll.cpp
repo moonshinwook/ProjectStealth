@@ -27,5 +27,8 @@ void UAnimNotify_StartRagdoll::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 		TEXT("StartRagdoll Notify / Enemy: %s"),
 		*GetNameSafe(Enemy));
 
+	// 체력 0 → Dead 상태 전환 → HP바 갱신
+	Enemy->CompleteAssassination();
+
 	Enemy->EnableRagdoll();
 }

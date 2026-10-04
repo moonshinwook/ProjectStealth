@@ -51,8 +51,6 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, Category = "State")
 	TObjectPtr<UCharacterStateComponent> StateComponent;
-private:
-	void OnChokeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 public:
 	UFUNCTION(BlueprintCallable, Category = "Enemy|Death")
 	void EnableRagdoll();
@@ -73,4 +71,6 @@ public:
 	void UpdateHealthUI();
 public:
 	void PlayChoke();
+public:
+	void CompleteAssassination();
 };
