@@ -17,6 +17,11 @@
 
 #include "CharacterStateComponent.h"
 
+//	장애물 유무 검사용
+#include "Engine/World.h"
+#include "CollisionQueryParams.h"
+//	디버그용 선 그리기
+#include "DrawDebugHelpers.h"
 
 
 // Sets default values, 생성자.
@@ -123,6 +128,8 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 테스트용 : 암살 가능 영역 표시
+	DrawAssassinationDebug();
 }
 
 // Called to bind functionality to input
@@ -251,4 +258,129 @@ bool AEnemy::IsTargetInAssassinationAngle(const AActor* Target) const
 	return bInAssassinationAngle;
 }
 
+bool AEnemy::IsAssassinationPathClear(const AActor* Target) const
+{
+	if (!IsValid(Target) || !GetWorld())
+	{
+		return false;
+	}
+
+	//  Player 중심 -> Enemy 중심으로 검사
+	const FVector Start = Target->GetActorLocation();
+	const FVector End = GetActorLocation();
+
+	//  충돌 결과를 저장할 변수
+	FHitResult HitResult;
+
+	//  검사 설정 : 단순 충돌 사용
+	FCollisionQueryParams QueryParams;
+	QueryParams.bTraceComplex = false;
+
+	//  Player와 Enemy 자신은 충돌 검사에서 제외
+	QueryParams.AddIgnoredActor(Target);
+	QueryParams.AddIgnoredActor(this);
+
+	//  Visibillity 채널로 선 검사 실행, 막는 장애물이 있는지 검사.
+	const bool bBlocked = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams);
+
+	//  테스트용 : 막히면 빨간선, 통과하면 초록 선을 2초간 표시
+	DrawDebugLine(GetWorld(), Start, End, bBlocked ? FColor::Red : FColor::Green, false, 2.0f, 0, 2.0f);
+
+	if (bBlocked)
+	{
+		//  실제 충돌 지점 표시
+		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 8.0f, 12, FColor::Red, false, 2.0f);
+
+		UE_LOG(LogTemp, Log, TEXT("Assassination Path Blocked by: %s"), *GetNameSafe(HitResult.GetActor()));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Assassination Path Clear"));
+	}
+
+	//   장애물이 있으면 false, 없으면 true 반환
+	return !bBlocked;
+
+}
+
+void AEnemy::DrawAssassinationDebug() const
+{
+	// 표시가 꺼져 있거나 사망했다면 그리지 않음
+	if (!bShowAssassinationDebug || !IsAlive())
+	{
+		return;
+	}
+
+	// 캡슐 발밑보다 5cm 위에 표시
+	FVector Center = GetActorLocation();
+	Center.Z -= GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	Center.Z += 5.0f;
+
+	// 실제 내적 판정과 동일하게 Enemy의 수평 전방 사용
+	const FVector Forward = GetActorForwardVector().GetSafeNormal2D();
+
+	if (Forward.IsNearlyZero())
+	{
+		return;
+	}
+
+	const float HalfFrontAngle = 70.0f;
+	const int32 SegmentCount = 72; // 5도 간격으로 원 구성
+	const float AngleStep = 360.0f / SegmentCount;
+
+	for (int32 Index = 0; Index < SegmentCount; ++Index)
+	{
+		const float StartAngle = -180.0f + Index * AngleStep;
+		const float EndAngle = StartAngle + AngleStep;
+		const float MiddleAngle = (StartAngle + EndAngle) * 0.5f;
+
+		// 전방 ±70도는 노란색, 나머지는 빨간색
+		const FColor Color =
+			FMath::Abs(MiddleAngle) < HalfFrontAngle
+			? FColor::Yellow
+			: FColor::Red;
+
+		const FVector StartPoint =
+			Center + Forward.RotateAngleAxis(
+				StartAngle, FVector::UpVector) * DebugAreaRadius;
+
+		const FVector EndPoint =
+			Center + Forward.RotateAngleAxis(
+				EndAngle, FVector::UpVector) * DebugAreaRadius;
+
+		// 원의 테두리
+		DrawDebugLine(
+			GetWorld(), Center + (StartPoint - Center), EndPoint,
+			Color, false, -1.0f, 0, 2.0f
+		);
+	}
+
+	// 전방과 후방을 구분하는 ±70도 경계선
+	for (int32 Side = -1; Side <= 1; Side += 2)
+	{
+		const FVector BoundaryPoint =
+			Center + Forward.RotateAngleAxis(
+				HalfFrontAngle * Side,
+				FVector::UpVector
+			) * DebugAreaRadius;
+
+		DrawDebugLine(
+			GetWorld(), Center, BoundaryPoint,
+			FColor::Yellow, false, -1.0f, 0, 2.0f
+		);
+	}
+
+	// Enemy가 바라보는 정면 방향 표시
+	DrawDebugDirectionalArrow(
+		GetWorld(),
+		Center,
+		Center + Forward * DebugAreaRadius,
+		15.0f,
+		FColor::Yellow,
+		false,
+		-1.0f,
+		0,
+		2.0f
+	);
+}
 

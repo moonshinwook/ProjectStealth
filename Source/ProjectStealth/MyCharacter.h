@@ -95,4 +95,7 @@ public:
 private:
 	void TestSelfDamage();
 
+	// 테스트용 Debug 선 표시
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bShowAssassinationTrace = true;
 };

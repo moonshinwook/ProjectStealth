@@ -163,11 +163,34 @@ float AMyCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 	return AppliedDamage;
 }
 
-// Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 기존 Tick 코드 유지
+
+	if (bShowAssassinationTrace &&
+		!bIsAssassinating &&
+		IsValid(StateComponent) &&
+		StateComponent->IsAlive())
+	{
+		AEnemy* Enemy = Cast<AEnemy>(
+			UGameplayStatics::GetActorOfClass(
+				GetWorld(), AEnemy::StaticClass())
+		);
+
+		if (IsValid(Enemy) && Enemy->IsAlive())
+		{
+			const double Distance =
+				(GetActorLocation() - Enemy->GetActorLocation()).Size();
+
+			if (Distance <= AssassinationRange)
+			{
+				// 반환값은 사용하지 않고 장애물 검사와 선 표시만 실행
+				Enemy->IsAssassinationPathClear(this);
+			}
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -431,6 +454,11 @@ void AMyCharacter::KeyAssassination()
 		return;
 	}
 
+	if (!Enemy->IsAssassinationPathClear(this))
+	{
+		return;
+	}
+
 	//	Enemy가 유효하면 Enemy의 PlayChoke() 함수 호출
 	if (IsValid(Enemy))
 	{
@@ -470,8 +498,11 @@ void AMyCharacter::TestSelfDamage()
 	);
 }
 
+
+
 void AMyCharacter::SetIsAssassinatingEnd()
 {
 	//	암살이 끝나면 캐릭터의 회전 관련 설정을 원래대로 복원
 	bUseControllerRotationYaw = true;
 }
+

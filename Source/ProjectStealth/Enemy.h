@@ -78,4 +78,27 @@ public:
 
 	// 대상이 Enemy 기준 후방 암살 허용 각도에 있는지 확인
 	bool IsTargetInAssassinationAngle(const AActor* Target) const;
+	// 대상과 Enemy 사이에 장애물이 없는지 확인
+	bool IsAssassinationPathClear(const AActor* Target) const;
+
+
+
+
+
+
+
+
+
+	// 테스트용
+private:
+	// 테스트용 영역 표시
+	void DrawAssassinationDebug() const;
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bShowAssassinationDebug = true;
+
+	// 시각화 전용 반지름
+	UPROPERTY(EditAnywhere, Category = "Debug", meta = (ClampMin = "1.0"))
+	float DebugAreaRadius = 150.0f;
+
 };
