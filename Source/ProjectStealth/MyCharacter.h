@@ -30,6 +30,9 @@ protected:
 	//	현재 체력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player|State")
 	float CurrentHealth = 100.0f;
+	//	암살 범위
+	UPROPERTY(EditAnywhere, Category = "Assassination", meta = (ClampMin = "0.0"))
+	float AssassinationRange = 150.0f;
 public:
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* SpringArm;

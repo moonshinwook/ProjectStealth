@@ -76,11 +76,17 @@ void AEnemy::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("[Player: %s] StateComponent is invalid"),
 			*GetName());
 	}
+	
 }
 
 FTransform AEnemy::GetAssassinationTransform() const
 {
 	return AssassinationPoint->GetComponentTransform();
+}
+
+bool AEnemy::IsAlive() const
+{
+	return IsValid(StateComponent) && StateComponent->IsAlive();
 }
 
 //	사망 처리 표현 코드
@@ -150,6 +156,7 @@ float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AControl
 	if (StateComponent->GetCurrentHealth() <= 0.0f)
 	{
 		EnableRagdoll();
+		StateComponent->MarkDead();
 	}
 
 	return AppliedDamage;
@@ -201,13 +208,47 @@ void AEnemy::CompleteAssassination()
 
 	StateComponent->ReceiveDamage(RemainHealth);
 
-	// HP바 갱신
+	//  HP바 갱신
 	UpdateHealthUI();
 
 	UE_LOG(LogTemp, Warning, TEXT("[%s] 암살 완료 / Health: %.1f / Alive: %s"),
 		*GetName(),
 		StateComponent->GetCurrentHealth(),
 		StateComponent->IsAlive() ? TEXT("true") : TEXT("false"));
+}
+
+bool AEnemy::IsTargetInAssassinationAngle(const AActor* Target) const
+{
+	if (!IsValid(Target))
+	{
+		return false;
+	}
+
+
+	//  Enemy가 바라보는 방향 : 높이를 제외하고 정규화
+	const FVector EnemyForward = GetActorForwardVector().GetSafeNormal2D();
+
+	//	Enemy에서 Target으로 향하는 방향 : 높이를 제외하고 정규화
+	const FVector DirectionToTarget = (Target->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+
+	//  수평 위치가 겹치는 등 방향을 구할 수 없는 경우 제외
+	if (EnemyForward.IsNearlyZero() || DirectionToTarget.IsNearlyZero())
+	{
+		return false;
+	}
+
+	//	정규화된 두 방향의 내적 벡터값
+	const double Dot = FVector::DotProduct(EnemyForward, DirectionToTarget);
+
+	//	전방 전체 140도의 절반인 70도를 기준으로 비교
+	const double FrontThreshold = FMath::Cos(FMath::DegreesToRadians(70.0));
+
+	//  경계 포함 전방은 불허, 나머지 영역은 허용
+	const bool bInAssassinationAngle = (Dot < FrontThreshold);
+
+	UE_LOG(LogTemp, Log, TEXT("Enemy : %s / Dot : %.6f / AngleAllowed : %s"), *GetName(), Dot, bInAssassinationAngle ? TEXT("true") : TEXT("false"));
+
+	return bInAssassinationAngle;
 }
 
 

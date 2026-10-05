@@ -385,6 +385,7 @@ void AMyCharacter::SetIsAssassinating(bool bNewIsAssassinating)
 
 void AMyCharacter::KeyAssassination()
 {
+
 	//	암살 중 재입력 제한
 	if (bIsAssassinating)
 	{
@@ -397,13 +398,9 @@ void AMyCharacter::KeyAssassination()
 		return;
 	}
 
-	if (IsValid(AnimInstance))
+	if (!IsValid(AnimInstance) || !IsValid(MotionWarpingComponent))
 	{
-		AnimInstance->PlayAssassinationAttackMontage();
-
-		//	Capsule Collision 해제
-		//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+		return;
 	}
 
 	//	현재 레벨에서 Enemy 한명 찾기
@@ -412,17 +409,32 @@ void AMyCharacter::KeyAssassination()
 	UE_LOG(LogTemp, Log, TEXT("Found Enemy : %s"), *GetNameSafe(Enemy));
 
 	//	적이 없으면 반환
-	if (!IsValid(Enemy))
+	if (!IsValid(Enemy) || !Enemy->IsAlive())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Assassination: Enemy not found"));
+		UE_LOG(LogTemp, Warning, TEXT("Assassination: Enemy not found or not alive"));
 		return;
 	}
 
+	// 거리 검사: 150cm 이하만 허용
+	const double Distance = (GetActorLocation() - Enemy->GetActorLocation()).Size();
 
+	if (Distance > AssassinationRange)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Assassination: Out of range / Distance: %.1f cm"), Distance);
+		return;
+	}
+
+	//  Enemy 기준 후방 암살 허용 각도인지 확인
+	if (!Enemy->IsTargetInAssassinationAngle(this))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Assassination: Angle blocked"));
+		return;
+	}
 
 	//	Enemy가 유효하면 Enemy의 PlayChoke() 함수 호출
 	if (IsValid(Enemy))
 	{
+
 		//	Enemy의 암살 기준점 정보 가져오기.
 		const FTransform TargetTransform = Enemy->GetAssassinationTransform();
 
@@ -438,6 +450,7 @@ void AMyCharacter::KeyAssassination()
 		// 대상 적이 이동할 때 플레이어와의 충돌 무시
 		Enemy->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
 
+		AnimInstance->PlayAssassinationAttackMontage();
 		Enemy->PlayChoke();
 	}
 

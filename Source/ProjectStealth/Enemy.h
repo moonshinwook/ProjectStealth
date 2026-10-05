@@ -47,7 +47,9 @@ protected:
 	//	피암살 처리
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|State")
 	bool bIsBeingAssassinated = false;
-	//	사망 처리
+public:
+	bool IsAlive() const;
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "State")
 	TObjectPtr<UCharacterStateComponent> StateComponent;
@@ -73,4 +75,7 @@ public:
 	void PlayChoke();
 public:
 	void CompleteAssassination();
+
+	// 대상이 Enemy 기준 후방 암살 허용 각도에 있는지 확인
+	bool IsTargetInAssassinationAngle(const AActor* Target) const;
 };
