@@ -38,15 +38,13 @@ Unreal Engine 5 · C++ 기반 3인칭 잠입 액션 포트폴리오
 
 *미발각 조건과 피격 중단 규칙은 아래의 추가 연동·검증 항목에 구분했습니다.
 
-실행 조건과 현재 상태
-
-    검사                           항목	판정 기준	                                            관련 코드 또는 상태
-  중복 입력	                   이미 암살 중이면 실행하지 않음	                                 bIsAssassinating 검사
-  대상 유효성	                    유효한 Enemy만 처리	                                          IsValid(Enemy)
-  대상 생존	                  살아 있는 Enemy만 암살 대상이 됨	                            Enemy->IsAlive() 검사 코드 작성
-    거리	                      AssassinationRange 이내	                                   150.0f — 기본 UE 단위 기준 150cm
-    각도	                   적 전방 140°를 제외한 220° 영역 허용	                         IsTargetInAssassinationAngle(this)
-   장애물                  	Player와 Enemy 사이에 차단 충돌이 없어야 함	            IsAssassinationPathClear(this) 코드 작성, 실제 레벨 검증 필요
-    은신                      발각된 상태에서는 암살 시작 불가	                            추후 업데이트 예정, 최종 상태 판정 연동 확인 필요
+검사 항목	판정 기준	관련 코드 또는 상태
+중복 입력	이미 암살 중이면 실행하지 않음	bIsAssassinating 검사
+대상 유효성	유효한 Enemy만 처리	IsValid(Enemy)
+대상 생존	살아 있는 Enemy만 암살 대상이 됨	Enemy->IsAlive() 검사 코드 작성
+거리	AssassinationRange 이내	공유된 기준값 150.0f — 기본 UE 단위 기준 150cm
+각도	적 전방 140°를 제외한 220° 영역 허용	IsTargetInAssassinationAngle(this)
+장애물	Player와 Enemy 사이에 차단 충돌이 없어야 함	IsAssassinationPathClear(this) 코드 작성, 실제 레벨 검증 필요
+미발각	발각된 상태에서는 암살 시작 불가	설계 규칙, 최종 상태 판정 연동 확인 필요
 
 
