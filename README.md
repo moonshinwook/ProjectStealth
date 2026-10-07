@@ -5,7 +5,6 @@ Unreal Engine 5 · C++ 기반 3인칭 잠입 액션 포트폴리오
 개발 중인 프로젝트입니다
 
 1. 프로젝트 정보
-프로젝트	      : Project Stealth
 장르	        : 3인칭 잠입 액션
 개발 목적	    : Unreal Engine C++ 클라이언트 프로그래머 포트폴리오
 개발 환경	    : Unreal Engine 5.7, C++, Visual Studio 2026
