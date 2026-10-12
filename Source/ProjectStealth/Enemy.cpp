@@ -126,6 +126,8 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UpdatePlayerDetection();
+
 	// 테스트용 : 암살 가능 영역 표시
 	DrawAssassinationDebug();
 }
@@ -271,23 +273,11 @@ bool AEnemy::IsTargetInAssassinationAngle(const AActor* Target) const
 		// 이미 발각된 상태라면 로그를 반복 출력하지 않기 위한 확인
 		const bool bWasPlayerDetected = PlayerStateComponent->IsDetected();
 
-		// 1. Enemy 상태 전환
-		StateComponent->MarkDetected();
-
-		// 2. MyCharacter 상태 전환
-		PlayerStateComponent->MarkDetected();
-
-		if (!bWasPlayerDetected)
-		{
-			UE_LOG(LogTemp, Log, TEXT("플레이어가 적에게 발각되었습니다."));
-			UE_LOG(LogTemp, Log, TEXT("적을 발견하였습니다."));
-		}
-
 		// 전방 영역에서는 암살 불가
 		return false;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Enemy : %s / Dot : %.6f / AngleAllowed : %s"), *GetName(), Dot, bInAssassinationAngle ? TEXT("true") : TEXT("false"));
+	//UE_LOG(LogTemp, Log, TEXT("Enemy : %s / Dot : %.6f / AngleAllowed : %s"), *GetName(), Dot, bInAssassinationAngle ? TEXT("true") : TEXT("false"));
 
 	return bInAssassinationAngle;
 }
@@ -318,23 +308,59 @@ bool AEnemy::IsAssassinationPathClear(const AActor* Target) const
 	const bool bBlocked = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams);
 
 	//  테스트용 : 막히면 빨간선, 통과하면 초록 선을 2초간 표시
-	//DrawDebugLine(GetWorld(), Start, End, bBlocked ? FColor::Red : FColor::Green, false, 2.0f, 0, 2.0f);
+	DrawDebugLine(GetWorld(), Start, End, bBlocked ? FColor::Red : FColor::Green, false, 0.2f, 0, 2.0f);
 
-	//if (bBlocked)
-	//{
-	//	//  실제 충돌 지점 표시
-	//	DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 8.0f, 12, FColor::Red, false, 2.0f);
+	if (bBlocked)
+	{
+		//  실제 충돌 지점 표시
+		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 8.0f, 12, FColor::Red, false, 2.0f);
 
-	//	UE_LOG(LogTemp, Log, TEXT("Assassination Path Blocked by: %s"), *GetNameSafe(HitResult.GetActor()));
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("Assassination Path Clear"));
-	//}
+		//UE_LOG(LogTemp, Log, TEXT("Assassination Path Blocked by: %s"), *GetNameSafe(HitResult.GetActor()));
+	}
+	else
+	{
+		//UE_LOG(LogTemp, Log, TEXT("Assassination Path Clear"));
+	}
 
-	//   장애물이 있으면 false, 없으면 true 반환
+	//	장애물이 있으면 false, 없으면 true 반환
 	return !bBlocked;
 
+}
+
+void AEnemy::UpdatePlayerDetection()
+{
+	AMyCharacter* Player = Cast<AMyCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	if (!IsValid(Player) || !IsValid(StateComponent))
+	{
+		return;
+	}
+
+	UCharacterStateComponent* PlayerStateComponent = Player->FindComponentByClass<UCharacterStateComponent>();
+
+	if (!IsValid(PlayerStateComponent))
+	{
+		return;
+	}
+
+	// 후방 암살 영역이면 상태 변경 없이 종료
+	if (IsTargetInAssassinationAngle(Player))
+	{
+		return;
+	}
+
+	// 전방 영역에서 아직 변경되지 않은 상태만 변경
+	if (!StateComponent->IsDetected())
+	{
+		StateComponent->MarkDetected();
+		UE_LOG(LogTemp, Warning, TEXT("Enemy: Hidden -> Detected"));
+	}
+
+	if (!PlayerStateComponent->IsDetected())
+	{
+		PlayerStateComponent->MarkDetected();
+		UE_LOG(LogTemp, Warning, TEXT("MyCharacter: Hidden -> Detected"));
+	}
 }
 
 void AEnemy::DrawAssassinationDebug() const
@@ -383,10 +409,7 @@ void AEnemy::DrawAssassinationDebug() const
 				EndAngle, FVector::UpVector) * DebugAreaRadius;
 
 		// 원의 테두리
-		DrawDebugLine(
-			GetWorld(), Center + (StartPoint - Center), EndPoint,
-			Color, false, -1.0f, 0, 2.0f
-		);
+		DrawDebugLine(GetWorld(), Center + (StartPoint - Center), EndPoint,Color, false, -1.0f, 0, 2.0f);
 	}
 
 	// 전방과 후방을 구분하는 ±70도 경계선

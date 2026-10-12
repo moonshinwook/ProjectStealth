@@ -82,7 +82,8 @@ public:
 	bool IsAssassinationPathClear(const AActor* Target) const;
 
 
-
+public:
+	void UpdatePlayerDetection();
 
 
 
