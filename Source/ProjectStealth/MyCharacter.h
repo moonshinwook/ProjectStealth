@@ -48,6 +48,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UCharacterStateComponent* GetStateComponent() const 
+	{ 
+		return StateComponent; 
+	}
+
+public:
 	void UpdateHealthUI();
 private:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Character|UI",meta = (AllowPrivateAccess = "true"))
