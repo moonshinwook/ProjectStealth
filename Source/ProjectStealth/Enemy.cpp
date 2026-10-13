@@ -126,10 +126,14 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdatePlayerDetection();
+	UpdatePlayerDetection(DeltaTime);
 
 	// 테스트용 : 암살 가능 영역 표시
 	DrawAssassinationDebug();
+
+	// 변경된 상태를 기준으로 E 표시 갱신
+	UpdateAssassinationPrompt();
+
 }
 
 // Called to bind functionality to input
@@ -327,12 +331,13 @@ bool AEnemy::IsAssassinationPathClear(const AActor* Target) const
 
 }
 
-void AEnemy::UpdatePlayerDetection()
+void AEnemy::UpdatePlayerDetection(float DeltaTime)
 {
 	AMyCharacter* Player = Cast<AMyCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
 	if (!IsValid(Player) || !IsValid(StateComponent))
 	{
+		TimeOutsideFront = 0.0f;
 		return;
 	}
 
@@ -340,27 +345,87 @@ void AEnemy::UpdatePlayerDetection()
 
 	if (!IsValid(PlayerStateComponent))
 	{
+		TimeOutsideFront = 0.0f;
 		return;
 	}
 
-	// 후방 암살 영역이면 상태 변경 없이 종료
-	if (IsTargetInAssassinationAngle(Player))
+	// 기존 함수: 후방 영역이면 true
+	const bool bOutsideFront = IsTargetInAssassinationAngle(Player);
+
+	if (bOutsideFront)
 	{
+		// 둘 다 이미 Hidden이면 복귀 시간을 셀 필요 없음
+		if (!StateComponent->IsDetected() && !PlayerStateComponent->IsDetected())
+		{
+			TimeOutsideFront = 0.0f;
+			return;
+		}
+
+		// 전방 영역을 벗어난 시간을 누적
+		TimeOutsideFront += DeltaTime;
+
+		if (TimeOutsideFront >= 3.0f)
+		{
+			StateComponent->MarkHidden();
+			PlayerStateComponent->MarkHidden();
+
+			TimeOutsideFront = 0.0f;
+
+			UE_LOG(LogTemp, Warning, TEXT("Enemy / MyCharacter: Detected -> Hidden"));
+		}
+
 		return;
 	}
 
-	// 전방 영역에서 아직 변경되지 않은 상태만 변경
+	// 전방에 다시 들어오면 연속 이탈 시간 초기화
+	TimeOutsideFront = 0.0f;
+
 	if (!StateComponent->IsDetected())
 	{
 		StateComponent->MarkDetected();
+
 		UE_LOG(LogTemp, Warning, TEXT("Enemy: Hidden -> Detected"));
 	}
 
 	if (!PlayerStateComponent->IsDetected())
 	{
 		PlayerStateComponent->MarkDetected();
+
 		UE_LOG(LogTemp, Warning, TEXT("MyCharacter: Hidden -> Detected"));
 	}
+}
+
+void AEnemy::UpdateAssassinationPrompt()
+{
+	if (!IsValid(HealthBarComponent))
+	{
+		return;
+	}
+
+	UHealthBarWidget* HealthWidget = Cast<UHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
+
+	if (!IsValid(HealthWidget))
+	{
+		return;
+	}
+
+	// 상태를 확인할 수 없다면 기본적으로 숨김
+	bool bShowPrompt = false;
+
+	AMyCharacter* Player = Cast<AMyCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	if (IsValid(Player) && IsValid(StateComponent))
+	{
+		UCharacterStateComponent* PlayerStateComponent = Player->FindComponentByClass<UCharacterStateComponent>();
+
+		if (IsValid(PlayerStateComponent))
+		{
+			// Enemy와 MyCharacter가 모두 Hidden일 때만 표시
+			bShowPrompt = !StateComponent->IsDetected() && !PlayerStateComponent->IsDetected();
+		}
+	}
+
+	HealthWidget->SetAssassinationPromptVisible(bShowPrompt);
 }
 
 void AEnemy::DrawAssassinationDebug() const

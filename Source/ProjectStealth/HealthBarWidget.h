@@ -10,6 +10,7 @@
 class UProgressBar;
 class UWidgetComponent;
 class USceneComponent;
+class UTextBlock;
 
 UCLASS()
 class PROJECTSTEALTH_API UHealthBarWidget : public UUserWidget
@@ -19,6 +20,13 @@ class PROJECTSTEALTH_API UHealthBarWidget : public UUserWidget
 public:
     void UpdateHealth(float CurrentHealth, float MaxHealth);
     static void SetupHealthBarComponent(UWidgetComponent* InComponent, USceneComponent* Inparent, float Height = 120.0f);
+    
+public:
+	void SetAssassinationPromptVisible(bool bVisible);
+
+protected:
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> AssassinationPrompt;
 
 private:
     UPROPERTY(meta = (BindWidget))

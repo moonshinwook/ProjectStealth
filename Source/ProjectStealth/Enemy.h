@@ -32,6 +32,11 @@ private:
 private:
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	TObjectPtr<UWidgetComponent> HealthBarComponent;
+
+private:
+	// 플레이어가 전방 영역에서 벗어나 있는 연속 시간
+	float TimeOutsideFront = 0.0f;
+
 public:
 	FTransform GetAssassinationTransform() const;
 protected:
@@ -83,8 +88,9 @@ public:
 
 
 public:
-	void UpdatePlayerDetection();
+	void UpdatePlayerDetection(float DeltaTime);
 
+	void UpdateAssassinationPrompt();
 
 
 

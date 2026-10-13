@@ -72,7 +72,7 @@ public:
 		PlayerDetectionState = EDetectionState::Detected;
 	}
 
-	// 미발각 상태로 변경
+	// 은신 상태로 변경
 	void MarkHidden()
 	{
 		PlayerDetectionState = EDetectionState::Hidden;

@@ -4,6 +4,7 @@
 #include "HealthBarWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/WidgetComponent.h"
+#include "Components/TextBlock.h"
 
 
 void UHealthBarWidget::UpdateHealth(float CurrentHealth, float MaxHealth)
@@ -40,9 +41,20 @@ void UHealthBarWidget::SetupHealthBarComponent(UWidgetComponent* InComponent, US
     InComponent->SetRelativeLocation(FVector(0.0f, 0.0f, Height));
 
     InComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	InComponent->SetDrawSize(FVector2D(200.0f, 20.0f));
+	InComponent->SetDrawSize(FVector2D(200.0f, 50.0f));
     InComponent->SetPivot(FVector2D(0.5f, 0.5f));
 
     InComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+}
+
+void UHealthBarWidget::SetAssassinationPromptVisible(bool bVisible)
+{
+	if (!IsValid(AssassinationPrompt))
+	{
+		return;
+	}
+
+	AssassinationPrompt->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 
 }
